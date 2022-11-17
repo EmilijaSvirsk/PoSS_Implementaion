@@ -84,8 +84,18 @@ namespace PSP_Komanda32_API.Services
 
         private string GenerateString(string name, Random rnd)
         {
-            //TODO: cia galima geriau implementuoti, bet gal sitas kolkas sueis
-            return "random" + name + rnd.Next(50);
+            string? str;
+
+            if (name.Contains("email"))
+            {
+                str = "myEmail" + rnd.Next(100) + "@gmail.com";
+            }
+            else
+            {
+                str = name + rnd.Next(200);
+            }
+
+            return str;
         }
     }
 }
