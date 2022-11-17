@@ -9,5 +9,6 @@
         public int HouseNr { get; set; }
         public int FlatNr { get; set; }
         public int CustomerId { get; set; }
+
     }
 }
