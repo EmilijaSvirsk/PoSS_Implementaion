@@ -64,12 +64,6 @@ namespace PSP_Komanda32_API.Services
                 }
             }
 
-            //var test = newClass as Courier;
-
-            //Trace.WriteLine(test.Transportation);
-            //Trace.WriteLine(test.id);
-            //Trace.WriteLine(test.Name);
-
             return newClass;
         }
 
