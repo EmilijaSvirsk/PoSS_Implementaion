@@ -3,10 +3,11 @@ using PSP_Komanda32_API.Models;
 using PSP_Komanda32_API.Services;
 using PSP_Komanda32_API.Services.Interfaces;
 
-namespace PSP_Komanda32_API.Controllers
+namespace PSP_Komanda32_API.Controllers.EmployeeManagement
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "Manage employees")]
     public class CouriersController : ControllerBase
     {
         readonly IRandomizer _randomizer = new Randomizer();
