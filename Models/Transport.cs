@@ -4,6 +4,6 @@
     {
         Scooter,
         Car,
-        Bycicle
+        Bicycle
     }
 }
