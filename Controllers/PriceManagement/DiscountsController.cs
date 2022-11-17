@@ -10,7 +10,12 @@ namespace PSP_Komanda32_API.Controllers.PriceManagement
     [ApiExplorerSettings(GroupName = "Manage prices")]
     public class DiscountsController : ControllerBase
     {
-        readonly IRandomizer _randomizer = new Randomizer();
+        readonly IRandomizer _randomizer;
+
+        public DiscountsController(IRandomizer randomizer)
+        {
+            _randomizer = randomizer;
+        }
 
         // GET: api/<DiscountsController>
         [HttpGet]
@@ -29,27 +34,45 @@ namespace PSP_Komanda32_API.Controllers.PriceManagement
 
         // GET api/<DiscountsController>/5
         [HttpGet("{id}")]
-        public Discount Get(int id)
+        public ActionResult<Discount> Get(int id)
         {
-            return _randomizer.GenerateRandomData<Discount>(id);
+            var value = _randomizer.GenerateRandomData<Discount>(id);
+
+            if (value == null)
+            {
+                return NotFound();
+            }
+
+            return value;
         }
 
         // POST api/<DiscountsController>
         [HttpPost]
-        public void Post([FromBody] Discount value)
+        public ActionResult<Discount> Post([FromBody] Discount value)
         {
+            if (value != null)
+                return CreatedAtAction("Get", new { id = value.id }, value);
+
+            return new StatusCodeResult(StatusCodes.Status404NotFound);
         }
 
         // PUT api/<DiscountsController>/5
         [HttpPut]
-        public void Put([FromBody] Discount value)
+        public ActionResult<Discount> Put(int id, [FromBody] Discount value)
         {
+            if (id != value.id)
+            {
+                return BadRequest();
+            }
+
+            return NoContent();
         }
 
         // DELETE api/<DiscountsController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(int id)
         {
+            return Ok();
         }
     }
 }

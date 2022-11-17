@@ -56,7 +56,7 @@ namespace PSP_Komanda32_API.Services
                 }
                 else if (el.PropertyType == typeof(bool))
                 {
-                    el.SetValue(newClass, rnd.NextDouble()); //generates bool upon conversion
+                    el.SetValue(newClass, rnd.Next(2) == 0); //generates bool upon conversion
                 }
                 else if (el.PropertyType == typeof(string))
                 {
