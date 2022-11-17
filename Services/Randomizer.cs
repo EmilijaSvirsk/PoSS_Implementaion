@@ -86,9 +86,17 @@ namespace PSP_Komanda32_API.Services
         {
             string? str;
 
-            if (name.Contains("email"))
+            if (name.ToLower().Contains("email"))
             {
                 str = "myEmail" + rnd.Next(100) + "@gmail.com";
+            }
+            else if (name.ToLower().Contains("phonenr"))
+            {
+                str = "86";
+                for (int i = 0; i < 7; i++)
+                {
+                    str += rnd.Next(9);
+                }
             }
             else
             {
