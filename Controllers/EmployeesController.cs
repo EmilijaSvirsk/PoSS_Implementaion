@@ -11,7 +11,7 @@ namespace PSP_Komanda32_API.Controllers
     {
         readonly IRandomizer _randomizer = new Randomizer();
 
-        // GET: api/<OrdersController>
+        // GET: api/<EmployeesController>
         [HttpGet]
         public IEnumerable<Employee> GetAll()
         {
@@ -26,26 +26,26 @@ namespace PSP_Komanda32_API.Controllers
             return list;
         }
 
-        // GET api/<OrdersController>/5
+        // GET api/<EmployeesController>/5
         [HttpGet("{id}")]
         public Employee Get(int id)
         {
             return _randomizer.GenerateRandomData<Employee>(id);
         }
 
-        // POST api/<OrdersController>
+        // POST api/<EmployeesController>
         [HttpPost]
         public void Post([FromBody] Employee value)
         {
         }
 
-        // PUT api/<OrdersController>/5
+        // PUT api/<EmployeesController>/5
         [HttpPut]
         public void Put([FromBody] Employee value)
         {
         }
 
-        // DELETE api/<OrdersController>/5
+        // DELETE api/<EmployeesController>/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
