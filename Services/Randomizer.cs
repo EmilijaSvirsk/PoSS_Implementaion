@@ -11,64 +11,81 @@ namespace PSP_Komanda32_API.Services
         {
             var data = typeof(T).GetProperties();
             var newClass = new T();
+            var rnd = new Random();
 
             foreach (var el in data)
             {
                 if (el.Name == "id")
                 {
-                    el.SetValue(newClass, id ?? GenerateId());
+                    el.SetValue(newClass, id ?? rnd.Next(1000));
                     continue;
                 }
 
 
                 if (el.PropertyType == typeof(int))
                 {
-                    el.SetValue(newClass, 10);
+                    el.SetValue(newClass, rnd.Next(1000));
                 }
                 else if (el.PropertyType == typeof(double))
                 {
-                    el.SetValue(newClass, 10.0);
+                    el.SetValue(newClass, rnd.NextDouble()); //TODO: kokiu cia reziu reikia?
                 }
                 else if (el.PropertyType == typeof(DateTime))
                 {
-                    el.SetValue(newClass, new DateTime(100000000));
+                    el.SetValue(newClass, RandomDateTime(rnd));
                 }
                 else if (el.PropertyType == typeof(Transport))
                 {
-                    el.SetValue(newClass, Transport.Car);
+                    el.SetValue(newClass, RandomEnum<Transport>(rnd));
                 }
                 else if (el.PropertyType == typeof(OrderStatus))
                 {
-                    el.SetValue(newClass, OrderStatus.InProcess);
+                    el.SetValue(newClass, RandomEnum<OrderStatus>(rnd));
                 }
                 else if (el.PropertyType == typeof(TimeOnly))
                 {
-                    el.SetValue(newClass, new TimeOnly(10, 30));
+                    el.SetValue(newClass, new TimeOnly(rnd.Next(24), rnd.Next(60)));
                 }
                 else if (el.PropertyType == typeof(Payment))
                 {
-                    el.SetValue(newClass, Payment.Online);
+                    el.SetValue(newClass, RandomEnum<Payment>(rnd));
                 }
                 else if (el.PropertyType == typeof(ReservationStatus))
                 {
-                    el.SetValue(newClass, ReservationStatus.Cancelled);
+                    el.SetValue(newClass, RandomEnum<Reservation>(rnd));
                 }
                 else if (el.PropertyType == typeof(bool))
                 {
-                    el.SetValue(newClass, true);
+                    el.SetValue(newClass, rnd.NextDouble()); //generates bool upon conversion
                 }
                 else if (el.PropertyType == typeof(string))
                 {
-                    el.SetValue(newClass, "test");
+                    el.SetValue(newClass, GenerateString(el.Name, rnd));
                 }
             }
 
             return newClass;
         }
 
-        private int GenerateId()
+        private DateTime RandomDateTime(Random rnd)
         {
-            return 1;
+            DateTime start = new DateTime(1995, 1, 1);
+            int range = (DateTime.Today - start).Days;
+            return start.AddDays(rnd.Next(range));
+        }
+
+        private object RandomEnum<T>(Random rnd)
+        {
+            var values = Enum.GetValues(typeof(T));
+            var index = rnd.Next(values.Length);
+
+            return (T)values.GetValue(index);
+        }
+
+        private string GenerateString(string name, Random rnd)
+        {
+            //TODO: cia galima geriau implementuoti, bet gal sitas kolkas sueis
+            return "random" + name + rnd.Next(50);
         }
     }
 }
