@@ -7,7 +7,7 @@ namespace PSP_Komanda32_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [ApiExplorerSettings(GroupName = "Manage orders")]
+    [ApiExplorerSettings(GroupName = "Manage shifts")]
     public class ShiftsController : ControllerBase
     {
         readonly IRandomizer _randomizer;
