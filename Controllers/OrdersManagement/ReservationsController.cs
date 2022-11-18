@@ -7,7 +7,7 @@ namespace PSP_Komanda32_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [ApiExplorerSettings(GroupName = "Manage reservations")]
+    [ApiExplorerSettings(GroupName = "Manage orders")]
     public class ReservationsController : ControllerBase
     {
         readonly IRandomizer _randomizer;

@@ -46,6 +46,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    /*
+     * Kazkokiu panasiu metodu turetu sugeneruot yaml
+     * https://stackoverflow.com/questions/45100923/generate-yaml-swagger-using-swashbuckle
+    app.UseSwaggerUI(x => { x.SwaggerEndpoint("/v1/swagger.yaml", "Komandux project API"); });
+    */
 }
 
 app.UseHttpsRedirection();
