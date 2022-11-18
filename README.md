@@ -29,7 +29,7 @@ Useful links:
 TODO:
   - [x] Group requests into categories
   - [x] Write Readme.md
-  - [x] Deployement diagram
+  - [x] Deployment diagram
 
 
 
