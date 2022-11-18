@@ -16,6 +16,10 @@ namespace PSP_Komanda32_API.Controllers
             _randomizer = randomizer;
         }
 
+        /// <summary>
+        /// Gets all shifts from Shift table
+        /// </summary>
+        /// <returns>list of discounts</returns>
         // GET: api/<ShiftsController>
         [HttpGet]
         public IEnumerable<Shift> GetAll()
@@ -31,6 +35,13 @@ namespace PSP_Komanda32_API.Controllers
             return list;
         }
 
+        /// <summary>
+        /// Gets specific shift from Shift table
+        /// </summary>
+        /// <param name="id">id of shift</param>
+        /// <returns>one shift by id</returns>
+        /// <response code="201">Returns found item</response>
+        /// <response code="404">If the item is null</response>
         // GET api/<ShiftsController>/5
         [HttpGet("{id}")]
         public ActionResult<Shift> Get(int id)
@@ -45,6 +56,13 @@ namespace PSP_Komanda32_API.Controllers
             return value;
         }
 
+        /// <summary>
+        /// Posts specific shift to Shift table
+        /// </summary>
+        /// <param name="value">new created shift</param>
+        /// <returns>one shift by id</returns>
+        /// <response code="201">Returns the newly created item</response>
+        /// <response code="404">If the item is null</response>
         // POST api/<ShiftsController>
         [HttpPost]
         public ActionResult<Shift> Post([FromBody] Shift value)
@@ -55,6 +73,14 @@ namespace PSP_Komanda32_API.Controllers
             return new StatusCodeResult(StatusCodes.Status404NotFound);
         }
 
+        /// <summary>
+        /// Updates specific shift by id from Shift table
+        /// </summary>
+        /// <param name="id">shift id</param>
+        /// <param name="value">changed shift</param>
+        /// <returns>one shift by id</returns>
+        /// <response code="204">if the change is successful</response>
+        /// <response code="404">if bad request</response>
         // PUT api/<ShiftsController>/5
         [HttpPut]
         public ActionResult<Shift> Put(int id, [FromBody] Shift value)
@@ -67,6 +93,11 @@ namespace PSP_Komanda32_API.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Deletes specific shift by id from Shift table
+        /// </summary>
+        /// <param name="id">Shift id</param>
+        /// <response code="204">if delete is successful</response>
         // DELETE api/<ShiftsController>/5
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)

@@ -17,6 +17,10 @@ namespace PSP_Komanda32_API.Controllers
             _randomizer = randomizer;
         }
 
+        /// <summary>
+        /// Gets all product services from ProductService table
+        /// </summary>
+        /// <returns>list of product services</returns>
         // GET: api/<ProductServicesController>
         [HttpGet]
         public IEnumerable<ProductService> GetAll()
@@ -32,6 +36,13 @@ namespace PSP_Komanda32_API.Controllers
             return list;
         }
 
+        /// <summary>
+        /// Gets specific product service from ProductService table
+        /// </summary>
+        /// <param name="id">id of product service</param>
+        /// <returns>one tax by product service</returns>
+        /// <response code="201">Returns found item</response>
+        /// <response code="404">If the item is null</response>
         // GET api/<ProductServicesController>/5
         [HttpGet("{id}")]
         public ActionResult<ProductService> Get(int id)
@@ -47,6 +58,13 @@ namespace PSP_Komanda32_API.Controllers
             return value;
         }
 
+        /// <summary>
+        /// Posts specific product service to ProductService table
+        /// </summary>
+        /// <param name="value">new created product service</param>
+        /// <returns>one product service by id</returns>
+        /// <response code="201">Returns the newly created item</response>
+        /// <response code="404">If the item is null</response>
         // POST api/<ProductServicesController>
         [HttpPost]
         public ActionResult<ProductService> Post([FromBody] ProductService value)
@@ -57,6 +75,14 @@ namespace PSP_Komanda32_API.Controllers
             return new StatusCodeResult(StatusCodes.Status404NotFound);
         }
 
+        /// <summary>
+        /// Updates specific product service by id from ProductService table
+        /// </summary>
+        /// <param name="id">product service id</param>
+        /// <param name="value">changed product service</param>
+        /// <returns>one product service by id</returns>
+        /// <response code="204">if the change is successful</response>
+        /// <response code="404">if bad request</response>
         // PUT api/<ProductServicesController>/5
         [HttpPut]
         public ActionResult<ProductService> Put(int id, [FromBody] ProductService value)
@@ -70,6 +96,11 @@ namespace PSP_Komanda32_API.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Deletes specific product service by id from ProductService table
+        /// </summary>
+        /// <param name="id">product service id</param>
+        /// <response code="204">if delete is successful</response>
         // DELETE api/<ProductServicesController>/5
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
