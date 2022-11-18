@@ -9,7 +9,12 @@ namespace PSP_Komanda32_API.Controllers
     [ApiController]
     public class ShiftsController : ControllerBase
     {
-        readonly IRandomizer _randomizer = new Randomizer();
+        readonly IRandomizer _randomizer;
+
+        public ShiftsController(IRandomizer randomizer)
+        {
+            _randomizer = randomizer;
+        }
 
         // GET: api/<ShiftsController>
         [HttpGet]
@@ -28,27 +33,45 @@ namespace PSP_Komanda32_API.Controllers
 
         // GET api/<ShiftsController>/5
         [HttpGet("{id}")]
-        public Shift Get(int id)
+        public ActionResult<Shift> Get(int id)
         {
-            return _randomizer.GenerateRandomData<Shift>(id);
+            var value = _randomizer.GenerateRandomData<Shift>(id);
+
+            if (value == null)
+            {
+                return NotFound();
+            }
+
+            return value;
         }
 
         // POST api/<ShiftsController>
         [HttpPost]
-        public void Post([FromBody] Shift value)
+        public ActionResult<Shift> Post([FromBody] Shift value)
         {
+            if (value != null)
+                return CreatedAtAction("Get", new { id = value.EmployeeId }, value);
+
+            return new StatusCodeResult(StatusCodes.Status404NotFound);
         }
 
         // PUT api/<ShiftsController>/5
         [HttpPut]
-        public void Put([FromBody] Shift value)
+        public ActionResult<Shift> Put(int id, [FromBody] Shift value)
         {
+            if (id != value.EmployeeId)
+            {
+                return BadRequest();
+            }
+
+            return NoContent();
         }
 
         // DELETE api/<ShiftsController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(int id)
         {
+            return Ok();
         }
     }
 }

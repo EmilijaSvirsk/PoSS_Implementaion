@@ -10,7 +10,12 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
     [ApiExplorerSettings(GroupName = "Manage employees")]
     public class EmployeesController : ControllerBase
     {
-        readonly IRandomizer _randomizer = new Randomizer();
+        readonly IRandomizer _randomizer;
+
+        public EmployeesController(IRandomizer randomizer)
+        {
+            _randomizer = randomizer;
+        }
 
         // GET: api/<EmployeesController>
         [HttpGet]
@@ -29,27 +34,45 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
 
         // GET api/<EmployeesController>/5
         [HttpGet("{id}")]
-        public Employee Get(int id)
+        public ActionResult<Employee> Get(int id)
         {
-            return _randomizer.GenerateRandomData<Employee>(id);
+            var value = _randomizer.GenerateRandomData<Employee>(id);
+
+            if (value == null)
+            {
+                return NotFound();
+            }
+
+            return value;
         }
 
         // POST api/<EmployeesController>
         [HttpPost]
-        public void Post([FromBody] Employee value)
+        public ActionResult<Employee> Post([FromBody] Employee value)
         {
+            if (value != null)
+                return CreatedAtAction("Get", new { id = value.id }, value);
+
+            return new StatusCodeResult(StatusCodes.Status404NotFound);
         }
 
         // PUT api/<EmployeesController>/5
         [HttpPut]
-        public void Put([FromBody] Employee value)
+        public ActionResult<Employee> Put(int id, [FromBody] Employee value)
         {
+            if (id != value.id)
+            {
+                return BadRequest();
+            }
+
+            return NoContent();
         }
 
         // DELETE api/<EmployeesController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(int id)
         {
+            return Ok();
         }
     }
 }

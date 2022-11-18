@@ -10,7 +10,12 @@ namespace PSP_Komanda32_API.Controllers.PriceManagement
     [ApiExplorerSettings(GroupName = "Manage prices")]
     public class TaxesController : ControllerBase
     {
-        readonly IRandomizer _randomizer = new Randomizer();
+        readonly IRandomizer _randomizer;
+
+        public TaxesController(IRandomizer randomizer)
+        {
+            _randomizer = randomizer;
+        }
 
         // GET: api/<TaxesController>
         [HttpGet]
@@ -29,27 +34,45 @@ namespace PSP_Komanda32_API.Controllers.PriceManagement
 
         // GET api/<TaxesController>/5
         [HttpGet("{id}")]
-        public Tax Get(int id)
+        public ActionResult<Tax> Get(int id)
         {
-            return _randomizer.GenerateRandomData<Tax>(id);
+            var value = _randomizer.GenerateRandomData<Tax>(id);
+
+            if (value == null)
+            {
+                return NotFound();
+            }
+
+            return value;
         }
 
         // POST api/<TaxesController>
         [HttpPost]
-        public void Post([FromBody] Tax value)
+        public ActionResult<Tax> Post([FromBody] Tax value)
         {
+            if (value != null)
+                return CreatedAtAction("Get", new { id = value.Id }, value);
+
+            return new StatusCodeResult(StatusCodes.Status404NotFound);
         }
 
         // PUT api/<TaxesController>/5
         [HttpPut]
-        public void Put([FromBody] Tax value)
+        public ActionResult<Tax> Put(int id, [FromBody] Tax value)
         {
+            if (id != value.Id)
+            {
+                return BadRequest();
+            }
+
+            return NoContent();
         }
 
         // DELETE api/<TaxesController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(int id)
         {
+            return Ok();
         }
     }
 }

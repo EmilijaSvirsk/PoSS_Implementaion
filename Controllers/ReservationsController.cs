@@ -10,7 +10,12 @@ namespace PSP_Komanda32_API.Controllers
     [ApiExplorerSettings(GroupName = "Manage reservations")]
     public class ReservationsController : ControllerBase
     {
-        readonly IRandomizer _randomizer = new Randomizer();
+        readonly IRandomizer _randomizer;
+
+        public ReservationsController(IRandomizer randomizer)
+        {
+            _randomizer = randomizer;
+        }
 
         // GET: api/<ReservationsController>
         [HttpGet]
@@ -29,27 +34,45 @@ namespace PSP_Komanda32_API.Controllers
 
         // GET api/<ReservationsController>/5
         [HttpGet("{id}")]
-        public Reservation Get(int id)
+        public ActionResult<Reservation> Get(int id)
         {
-            return _randomizer.GenerateRandomData<Reservation>(id);
+            var value = _randomizer.GenerateRandomData<Reservation>(id);
+
+            if (value == null)
+            {
+                return NotFound();
+            }
+
+            return value;
         }
 
         // POST api/<ReservationsController>
         [HttpPost]
-        public void Post([FromBody] Reservation value)
+        public ActionResult<Reservation> Post([FromBody] Reservation value)
         {
+            if (value != null)
+                return CreatedAtAction("Get", new { id = value.id }, value);
+
+            return new StatusCodeResult(StatusCodes.Status404NotFound);
         }
 
         // PUT api/<ReservationsController>/5
         [HttpPut]
-        public void Put([FromBody] Reservation value)
+        public ActionResult<Reservation> Put(int id, [FromBody] Reservation value)
         {
+            if (id != value.id)
+            {
+                return BadRequest();
+            }
+
+            return NoContent();
         }
 
         // DELETE api/<ReservationsController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(int id)
         {
+            return Ok();
         }
     }
 }

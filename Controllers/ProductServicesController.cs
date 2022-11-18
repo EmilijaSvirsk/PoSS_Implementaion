@@ -10,7 +10,12 @@ namespace PSP_Komanda32_API.Controllers
     [ApiExplorerSettings(GroupName = "Manage product services")]
     public class ProductServicesController : ControllerBase
     {
-        readonly IRandomizer _randomizer = new Randomizer();
+        readonly IRandomizer _randomizer;
+
+        public ProductServicesController(IRandomizer randomizer)
+        {
+            _randomizer = randomizer;
+        }
 
         // GET: api/<ProductServicesController>
         [HttpGet]
@@ -29,27 +34,47 @@ namespace PSP_Komanda32_API.Controllers
 
         // GET api/<ProductServicesController>/5
         [HttpGet("{id}")]
-        public ProductService Get(int id)
+        public ActionResult<ProductService> Get(int id)
         {
-            return _randomizer.GenerateRandomData<ProductService>(id);
+
+            var value = _randomizer.GenerateRandomData<ProductService>(id);
+
+            if (value == null)
+            {
+                return NotFound();
+            }
+
+            return value;
         }
 
         // POST api/<ProductServicesController>
         [HttpPost]
-        public void Post([FromBody] ProductService value)
+        public ActionResult<ProductService> Post([FromBody] ProductService value)
         {
+            if (value != null)
+                return CreatedAtAction("Get", new { id = value.id }, value);
+
+            return new StatusCodeResult(StatusCodes.Status404NotFound);
         }
 
         // PUT api/<ProductServicesController>/5
         [HttpPut]
-        public void Put([FromBody] ProductService value)
+        public ActionResult<ProductService> Put(int id, [FromBody] ProductService value)
         {
+
+            if (id != value.id)
+            {
+                return BadRequest();
+            }
+
+            return NoContent();
         }
 
         // DELETE api/<ProductServicesController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(int id)
         {
+            return Ok();
         }
     }
 }
