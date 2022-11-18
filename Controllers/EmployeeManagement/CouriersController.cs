@@ -17,6 +17,10 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
             _randomizer = randomizer;
         }
 
+        /// <summary>
+        /// Gets all data from the couriers table
+        /// </summary>
+        /// <returns>list of orders</returns>
         // GET: api/<CouriersController>
         [HttpGet]
         public IEnumerable<Courier> GetAll()
@@ -32,6 +36,13 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
             return list;
         }
 
+        /// <summary>
+        /// Gets specific courier by id from the couriers table
+        /// </summary>
+        /// <param name="id">id of courier</param>
+        /// <returns>one courier by id</returns>
+        /// <response code="201">Returns found item</response>
+        /// <response code="404">If the item is null</response>
         // GET api/<CouriersController>/5
         [HttpGet("{id}")]
         public ActionResult<Courier> Get(int id)
@@ -46,6 +57,13 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
             return value;
         }
 
+        /// <summary>
+        /// Posts specific courier by id to the couriers table
+        /// </summary>
+        /// <param name="value">new created courier</param>
+        /// <returns>one courier by id</returns>
+        /// <response code="201">Returns the newly created item</response>
+        /// <response code="404">If the item is null</response>
         // POST api/<CouriersController>
         [HttpPost]
         public ActionResult<Courier> Post([FromBody] Courier value)
@@ -56,6 +74,14 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
             return new StatusCodeResult(StatusCodes.Status404NotFound);
         }
 
+        /// <summary>
+        /// Update specific courier by id to the couriers table
+        /// </summary>
+        /// <param name="id">courier id</param>
+        /// <param name="value">changed courier</param>
+        /// <returns>one courier by id</returns>
+        /// <response code="204">if the change is successful</response>
+        /// <response code="404">if bad request</response>
         // PUT api/<CouriersController>/5
         [HttpPut]
         public ActionResult<Courier> Put(int id, [FromBody] Courier value)
@@ -68,6 +94,11 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
             return NoContent();
         }
 
+        /// <summary>
+        /// Deletes specific courier by id from the couriers table
+        /// </summary>
+        /// <param name="id">courier id</param>
+        /// <response code="204">if delete is successful</response>
         // DELETE api/<CouriersController>/5
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
