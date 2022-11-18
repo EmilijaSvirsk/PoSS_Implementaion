@@ -13,7 +13,7 @@ The groups are as follows:
 - Manage Orders
   - Management of Orders
   - Management of Order (this is different from the "Orders" table - this holds information about the delivery of orders)
-  - Managemet of Reservations
+  - Management of Reservations
 - Manage Prices
   - Management of Discounts
   - Management of Taxes
