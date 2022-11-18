@@ -18,7 +18,11 @@ namespace PSP_Komanda32_API.Controllers
             _randomizer = randomizer;
         }
 
-
+        /// <summary>
+        /// Gets all orders
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // GET: api/<OrdersController>
         [HttpGet]
         public IEnumerable<Orders> GetAll()
@@ -34,6 +38,13 @@ namespace PSP_Komanda32_API.Controllers
             return list;
         }
 
+        /// <summary>
+        /// Gets specific order by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>one order by id</returns>
+        /// <response code="201">Returns found item</response>
+        /// <response code="404">If the item is null</response>
         // GET api/<OrdersController>/5
         [HttpGet("{id}")]
         public ActionResult<Orders> Get(int id)
@@ -48,6 +59,13 @@ namespace PSP_Komanda32_API.Controllers
             return value;
         }
 
+        /// <summary>
+        /// Posts specific order by id
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns>one order by id</returns>
+        /// <response code="201">Returns the newly created item</response>
+        /// <response code="404">If the item is null</response>
         // POST api/<OrdersController>
         [HttpPost]
         public ActionResult<Orders> Post([FromBody] Orders value)

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.OpenApi.Models;
 using PSP_Komanda32_API.Services;
 using PSP_Komanda32_API.Services.Interfaces;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,10 @@ builder.Services.AddSwaggerGen(c =>
         throw new InvalidOperationException("Unable to determine tag for endpoint.");
     });
     c.DocInclusionPredicate((name, api) => true);
+
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+
 });
 
 
