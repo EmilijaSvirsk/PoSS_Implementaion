@@ -26,11 +26,12 @@ Useful links:
 - [Original Document](https://docs.google.com/document/d/129SuKjBGZLjADCWx621_v6H1vfarTP8A/edit?usp=sharing&ouid=111720644135424685759&rtpof=true&sd=true)
 
 
-Note:
-This is only in version 1, so there will be a lot of 
-
-
 TODO:
   - [x] Group requests into categories
   - [x] Write Readme.md
   - [x] Deployement diagram
+
+
+
+Note:
+This is only in version 1, so there will be a lot of changes in the upcoming weeks. Heads up!
