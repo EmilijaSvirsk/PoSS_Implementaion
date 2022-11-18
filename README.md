@@ -1,16 +1,10 @@
 # PSP Komanda32 Laboratory work nr.2 - API
 
 
-#### This API will be used to interact with our PoS SaaS system.
-
-
 
 #### Description
-So far we've grouped all requests into 5 groups.
-
-
-
-Each
+Our main goal is to create an API that would allow our clients to perform any necessary actions that are needed for managing their day-to-day operations.
+So far we've grouped all requests into 5 groups. All of those groups represent a specific order or type of requests.
 
 The groups are as follows:
 - Manage Employees
@@ -28,8 +22,9 @@ The groups are as follows:
 
 
 Useful links:
-  [Data Model](https://www.figma.com/file/R4yOcQSJ9v7WMlEwD4cyLn/UML-Diagrams-(Community)?node-id=0%3A1&t=kCVw7liNpcpIf8zo-1)
-  [Original Document](https://docs.google.com/document/d/129SuKjBGZLjADCWx621_v6H1vfarTP8A/edit?usp=sharing&ouid=111720644135424685759&rtpof=true&sd=true)
+- [Data Model](https://www.figma.com/file/R4yOcQSJ9v7WMlEwD4cyLn/UML-Diagrams-(Community)?node-id=0%3A1&t=kCVw7liNpcpIf8zo-1)
+- [Original Document](https://docs.google.com/document/d/129SuKjBGZLjADCWx621_v6H1vfarTP8A/edit?usp=sharing&ouid=111720644135424685759&rtpof=true&sd=true)
+
 
 Note:
 This is only in version 1, so there will be a lot of 
