@@ -2,6 +2,8 @@
 using PSP_Komanda32_API.Models;
 using PSP_Komanda32_API.Services;
 using PSP_Komanda32_API.Services.Interfaces;
+using PSP_Komanda32_API.Services.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace PSP_Komanda32_API.Controllers.EmployeeManagement
 {
@@ -10,12 +12,22 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
     [ApiExplorerSettings(GroupName = "Manage employees")]
     public class EmployeesController : ControllerBase
     {
-        readonly IRandomizer _randomizer;
+        //readonly IRandomizer _randomizer;
 
-        public EmployeesController(IRandomizer randomizer)
+        //public EmployeesController(IRandomizer randomizer)
+        //{
+        //    _randomizer = randomizer;
+        //}
+
+        private readonly PoSSContext _context;
+
+        public EmployeesController(PoSSContext context)
         {
-            _randomizer = randomizer;
+            _context = context;
         }
+
+        [BindProperty]
+        public List<Employee> Employee { get; set; }
 
         /// <summary>
         /// Gets all data from the employees table
@@ -23,17 +35,19 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
         /// <returns>list of employees</returns>
         // GET: api/<EmployeesController>
         [HttpGet]
-        public IEnumerable<Employee> GetAll()
+        public async Task<List<Employee>> GetAll()
         {
-            var list = new List<Employee>();
-            var index = 50;
+            //var list = new List<Employee>();
+            //var index = 50;
 
-            for (int i = 0; i < index; i++)
-            {
-                list.Add(_randomizer.GenerateRandomData<Employee>());
-            }
+            //for (int i = 0; i < index; i++)
+            //{
+            //    list.Add(_randomizer.GenerateRandomData<Employee>());
+            //}
 
-            return list;
+            Employee = await _context.Employees.ToListAsync();
+
+            return Employee;
         }
 
         /// <summary>
@@ -44,18 +58,18 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
         /// <response code="201">Returns found item</response>
         /// <response code="404">If the item is null</response>
         // GET api/<EmployeesController>/5
-        [HttpGet("{id}")]
-        public ActionResult<Employee> Get(int id)
-        {
-            var value = _randomizer.GenerateRandomData<Employee>(id);
+        //[HttpGet("{id}")]
+        //public ActionResult<Employee> Get(int id)
+        //{
+        //    var value = _randomizer.GenerateRandomData<Employee>(id);
 
-            if (value == null)
-            {
-                return NotFound();
-            }
+        //    if (value == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            return value;
-        }
+        //    return value;
+        //}
 
         /// <summary>
         /// Posts specific employee by id to the employees table

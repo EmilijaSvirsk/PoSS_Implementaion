@@ -1,21 +1,25 @@
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using PSP_Komanda32_API.Services;
+using PSP_Komanda32_API.Services.Database;
 using PSP_Komanda32_API.Services.Interfaces;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddScoped<IRandomizer, Randomizer>();
+// builder.Services.AddScoped<IRandomizer, Randomizer>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c => {
+builder.Services.AddSwaggerGen(c =>
+{
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
 
-    c.TagActionsBy(api => {
+    c.TagActionsBy(api =>
+    {
         if (api.GroupName != null)
         {
             return new[] { api.GroupName };
@@ -36,6 +40,7 @@ builder.Services.AddSwaggerGen(c => {
 
 });
 
+builder.Services.AddDbContext<PoSSContext>(options => options.UseSqlite("Data Source=PoSS.db"));
 
 var app = builder.Build();
 
@@ -50,6 +55,15 @@ if (app.Environment.IsDevelopment())
     //O kad generuoti html, tai reikia ta yaml faila imest i cia - https://editor.swagger.io/
     //ten yra galimybiu generuot pagal yaml visokius kitus failus
     app.UseSwaggerUI(x => { x.SwaggerEndpoint("/swagger/v1/swagger.yaml", "Komandux project API"); });
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var context = services.GetRequiredService<PoSSContext>();
+    context.Database.EnsureCreated();
+    DbInitializer.Initialize(context);
 }
 
 app.UseHttpsRedirection();

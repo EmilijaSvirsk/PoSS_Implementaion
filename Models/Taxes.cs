@@ -2,7 +2,7 @@
 {
     public class Taxes
     {
-        public int Id { get; set; }
+        public int id { get; set; }
         public int OrderId { get; set; }
     }
 }

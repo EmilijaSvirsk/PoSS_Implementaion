@@ -2,6 +2,7 @@
 {
     public class BannedCustomers
     {
+        public int id { get; set; }
         public int CustomerId { get; set; }
         public int BannedBy { get; set; }
         public string Reason { get; set; } = string.Empty;

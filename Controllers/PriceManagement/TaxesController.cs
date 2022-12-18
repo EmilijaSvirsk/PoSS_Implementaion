@@ -69,7 +69,7 @@ namespace PSP_Komanda32_API.Controllers.PriceManagement
         public ActionResult<Tax> Post([FromBody] Tax value)
         {
             if (value != null)
-                return CreatedAtAction("Get", new { id = value.Id }, value);
+                return CreatedAtAction("Get", new { id = value.id }, value);
 
             return new StatusCodeResult(StatusCodes.Status404NotFound);
         }
@@ -86,7 +86,7 @@ namespace PSP_Komanda32_API.Controllers.PriceManagement
         [HttpPut]
         public ActionResult<Tax> Put(int id, [FromBody] Tax value)
         {
-            if (id != value.Id)
+            if (id != value.id)
             {
                 return BadRequest();
             }
