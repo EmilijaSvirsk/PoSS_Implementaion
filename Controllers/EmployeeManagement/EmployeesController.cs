@@ -4,6 +4,7 @@ using PSP_Komanda32_API.Services;
 using PSP_Komanda32_API.Services.Interfaces;
 using PSP_Komanda32_API.Services.Database;
 using Microsoft.EntityFrameworkCore;
+using PSP_Komanda32_API.Services.Utils;
 
 namespace PSP_Komanda32_API.Controllers.EmployeeManagement
 {
@@ -12,12 +13,6 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
     [ApiExplorerSettings(GroupName = "Manage employees")]
     public class EmployeesController : ControllerBase
     {
-        //readonly IRandomizer _randomizer;
-
-        //public EmployeesController(IRandomizer randomizer)
-        //{
-        //    _randomizer = randomizer;
-        //}
 
         private readonly PoSSContext _context;
 
@@ -25,9 +20,6 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
         {
             _context = context;
         }
-
-        [BindProperty]
-        public List<Employee> Employee { get; set; }
 
         /// <summary>
         /// Gets all data from the employees table
@@ -37,17 +29,7 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
         [HttpGet]
         public async Task<List<Employee>> GetAll()
         {
-            //var list = new List<Employee>();
-            //var index = 50;
-
-            //for (int i = 0; i < index; i++)
-            //{
-            //    list.Add(_randomizer.GenerateRandomData<Employee>());
-            //}
-
-            Employee = await _context.Employees.ToListAsync();
-
-            return Employee;
+            return await _context.Employees.ToListAsync();
         }
 
         /// <summary>
@@ -55,21 +37,21 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
         /// </summary>
         /// <param name="id">id of employee</param>
         /// <returns>one employee by id</returns>
-        /// <response code="201">Returns found item</response>
+        /// <response code="200">Returns found item</response>
         /// <response code="404">If the item is null</response>
         // GET api/<EmployeesController>/5
-        //[HttpGet("{id}")]
-        //public ActionResult<Employee> Get(int id)
-        //{
-        //    var value = _randomizer.GenerateRandomData<Employee>(id);
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Employee>> Get(int id)
+        {
+            var employee = await _context.Employees.FindAsync(id);
 
-        //    if (value == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (employee == null)
+            {
+                return NotFound();
+            }
 
-        //    return value;
-        //}
+            return Ok(employee);
+        }
 
         /// <summary>
         /// Posts specific employee by id to the employees table
@@ -77,15 +59,35 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
         /// <param name="value">new created employee</param>
         /// <returns>one employee by id</returns>
         /// <response code="201">Returns the newly created item</response>
-        /// <response code="404">If the item is null</response>
+        /// <response code="400">If the item is null</response>
         // POST api/<EmployeesController>
         [HttpPost]
         public ActionResult<Employee> Post([FromBody] Employee value)
         {
-            if (value != null)
-                return CreatedAtAction("Get", new { id = value.id }, value);
+            _context.Employees.AddAsync(value);
 
-            return new StatusCodeResult(StatusCodes.Status404NotFound);
+            var checkResponse = Employee.CheckIfValid(value);
+
+            if (checkResponse == 1)
+                return BadRequest("Invalid body: values of Employee cannot be null");
+            else if (checkResponse == 2)
+                return BadRequest("Invalid body: invalid Employee Id");
+            else if (checkResponse == 3)
+                return BadRequest("Invalid body: invalid Employee Name");
+            else if (checkResponse == 4)
+                return BadRequest("Invalid body: invalid Employee Surname");
+            else if (checkResponse == 5)
+                return BadRequest("Invalid body: invalid Employee Email");
+            else if (checkResponse == 6)
+                return BadRequest("Invalid body: invalid Employee Username");
+            else if (checkResponse == 7)
+                return BadRequest("Invalid body: invalid Employee Password");
+            else if (checkResponse == 8)
+                return BadRequest("Invalid body: invalid Employee CreatedBy");
+
+            _context.SaveChanges();
+
+            return Created("api/Employees", value);
         }
 
         /// <summary>
@@ -95,15 +97,42 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
         /// <param name="value">changed employee</param>
         /// <returns>one employee by id</returns>
         /// <response code="204">if the change is successful</response>
-        /// <response code="404">if bad request</response>
+        /// <response code="400">if bad request</response>
         // PUT api/<EmployeesController>/5
         [HttpPut]
         public ActionResult<Employee> Put(int id, [FromBody] Employee value)
         {
-            if (id != value.id)
+            var employee = _context.Employees.Find(id);
+
+            if (employee == null)
             {
-                return BadRequest();
+                return BadRequest("No such employee with the given id");
             }
+
+            value.id = id;
+
+            var checkResponse = Employee.CheckIfValid(value);
+
+            if (checkResponse == 1)
+                return BadRequest("Invalid body: values of Employee cannot be null");
+            else if (checkResponse == 2)
+                return BadRequest("Invalid body: invalid Employee Id");
+            else if (checkResponse == 3)
+                return BadRequest("Invalid body: invalid Employee Name");
+            else if (checkResponse == 4)
+                return BadRequest("Invalid body: invalid Employee Surname");
+            else if (checkResponse == 5)
+                return BadRequest("Invalid body: invalid Employee Email");
+            else if (checkResponse == 6)
+                return BadRequest("Invalid body: invalid Employee Username");
+            else if (checkResponse == 7)
+                return BadRequest("Invalid body: invalid Employee Password");
+            else if (checkResponse == 8)
+                return BadRequest("Invalid body: invalid Employee CreatedBy");
+
+            _context.ChangeTracker.Clear();
+            _context.Employees.Update(value);
+            _context.SaveChanges();
 
             return NoContent();
         }
@@ -111,13 +140,24 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
         /// <summary>
         /// Deletes specific employee by id from the employees table
         /// </summary>
+        /// 
         /// <param name="id">employee id</param>
         /// <response code="204">if delete is successful</response>
         // DELETE api/<EmployeesController>/5
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
-            return Ok();
+            var employee = _context.Employees.Find(id);
+
+            if (employee == null)
+            {
+                return BadRequest("No such employee with the given id");
+            }
+
+            _context.Employees.Remove(employee);
+            _context.SaveChanges();
+
+            return NoContent();
         }
     }
 }

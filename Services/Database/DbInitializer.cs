@@ -25,7 +25,11 @@ namespace PSP_Komanda32_API.Services.Database
             var employees = new Employee[]
             {
                 new Employee{Name="Rokas", Surname="Lekecinskas", Email="rokas.lekecinskas@gmail.com", Username="Rokas123", Password="password", CreatedBy=1},
-                new Employee{Name="Rokas", Surname="Lekecinskas", Email="rokas.lekecinskas@gmail.com", Username="Rokas123", Password="password", CreatedBy=1}
+                new Employee{Name="Tomas", Surname="Tomauskas", Email="tomas.tomauskas@gmail.com", Username="Tomas123", Password="password", CreatedBy=1},
+                new Employee{Name="Jonas", Surname="Jonaitis", Email="jonas.jonaitis@gmail.com", Username="Jonas123", Password="password", CreatedBy=1},
+                new Employee{Name="Petras", Surname="Petraitis", Email="petras.petraitis@gmail.com", Username="Petras123", Password="password", CreatedBy=1},
+                new Employee{Name="Antanas", Surname="Antanaitis", Email="antanas.antanaitis@gmail.com", Username="Antanas123", Password="password", CreatedBy=1},
+                new Employee{Name="Vardenis", Surname="Pavardenis", Email="vardenis.pavardenis@gmail.com", Username="Vardenis123", Password="password", CreatedBy=1} 
             };
 
             context.Employees.AddRange(employees);
