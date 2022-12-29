@@ -16,6 +16,15 @@ namespace PSP_Komanda32_API.Controllers
             _context = context;
         }
 
+        private string? CheckIsProductServiceValid(ProductService productService)
+        {
+            if (productService.Name == null || productService.Name == string.Empty)
+                return "Name is empty";
+            if (productService.CostInCents < 0)
+                return "Cost is less than 0";
+            return null;
+        }
+
         /// <summary>
         /// Gets all product services of a business from ProductService table
         /// </summary>
@@ -26,14 +35,15 @@ namespace PSP_Komanda32_API.Controllers
         // GET: api/<ProductServicesController>/5
         [HttpGet("GetAllByBusiness/{businessId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductService>))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetAll(int businessId)
         {
             var businessPlace = await _context.BusinessPlaces.FindAsync(businessId);
-            if (businessPlace == null) {
+            if (businessPlace == null)
+            {
                 return NotFound();
             }
-            var productServices = await _context.ProductServices.Where(x => x.BusinessId == businessId).ToListAsync();
+            var productServices = await _context.ProductServices
+                .Where(x => x.BusinessId == businessId).ToListAsync();
             return Ok(productServices);
         }
 
@@ -43,15 +53,17 @@ namespace PSP_Komanda32_API.Controllers
         /// <param name="id">id of product service</param>
         /// <returns>one tax by product service</returns>
         /// <response code="200">Returns found item</response>
-        /// <response code="404">If the item is null</response>
+        /// <response code="404">If item does not exist</response>
         // GET api/<ProductServicesController>/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ProductService>> Get(int id)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductService))]
+        public async Task<ActionResult> Get(int id)
         {
             var productService = await _context.ProductServices.FindAsync(id);
-            if (productService != null)
-                return Ok(productService);
-            return NotFound();
+            if (productService == null) {
+                return NotFound();
+            }
+            return Ok(productService);
         }
 
         /// <summary>
@@ -60,20 +72,25 @@ namespace PSP_Komanda32_API.Controllers
         /// <param name="value">new created product service</param>
         /// <returns>one product service by id</returns>
         /// <response code="201">Returns the newly created item</response>
-        /// <response code="404">If the item is null</response>
+        /// <response code="400">If item is invalid</response>
+        /// <response code="404">If business does not exist</response>
         // POST api/<ProductServicesController>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ProductService))]
         public async Task<ActionResult> Post([FromBody] ProductService value)
         {
-            if (value == null)
+            if (await _context.BusinessPlaces.FindAsync(value.BusinessId) == null)
             {
-                return BadRequest();
+                return NotFound("Business does not exist");
             }
-
+            var badRequestMessage = CheckIsProductServiceValid(value);
+            if (badRequestMessage != null)
+            {
+                return BadRequest("Invalid ProductService: " + badRequestMessage);
+            }
             await _context.ProductServices.AddAsync(value);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(Get), new { id = value.id }, value);
+            return CreatedAtAction(nameof(Post), new { id = value.id }, value);
         }
 
         /// <summary>
@@ -83,19 +100,26 @@ namespace PSP_Komanda32_API.Controllers
         /// <param name="value">changed product service</param>
         /// <returns>one product service by id</returns>
         /// <response code="204">if the change is successful</response>
-        /// <response code="404">if bad request</response>
+        /// <response code="400">if item is invalid</response>
+        /// <response code="404">if item does not exist/response>
         // PUT api/<ProductServicesController>/5
         [HttpPut]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<ActionResult> Put(int id, [FromBody] ProductService value)
         {
-            if (value == null)
-            {
-                return BadRequest();
-            }
             var current = await _context.ProductServices.FindAsync(id);
             if (current == null)
             {
                 return NotFound();
+            }
+            var badRequestMessage = CheckIsProductServiceValid(value);
+            if (badRequestMessage != null)
+            {
+                return BadRequest("Invalid ProductService: " + badRequestMessage);
+            }
+            if (value.BusinessId != current.BusinessId)
+            {
+                return BadRequest("BusinessId cannot be changed");
             }
             value.id = id;
             _context.Entry(current).CurrentValues.SetValues(value);
@@ -108,8 +132,10 @@ namespace PSP_Komanda32_API.Controllers
         /// </summary>
         /// <param name="id">product service id</param>
         /// <response code="204">if delete is successful</response>
+        /// <response code="404">if item does not exist</response>
         // DELETE api/<ProductServicesController>/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<ActionResult> Delete(int id)
         {
             var productService = await _context.ProductServices.FindAsync(id);

@@ -30,6 +30,24 @@ namespace PSP_Komanda32_API.Services.Database
 
             context.Employees.AddRange(employees);
             context.SaveChanges();
+
+            var businessPlaces = new BusinessPlace[]
+            {
+                new BusinessPlace{id = 1, Title="Tarkim", Address="Vilnius", Email="tarkim@gmail.com", PhoneNr="123456789", CreatedBy=1},
+                new BusinessPlace{id = 2, Title="Antra", Address="Vilnius", Email="info@antra.lt", PhoneNr="123456789", CreatedBy=2}
+            };
+
+            context.BusinessPlaces.AddRange(businessPlaces);
+            context.SaveChanges();
+
+            var productServices = new ProductService[]
+            {
+                new ProductService{id = 1, Name = "Product1", Description = "Description1", CostInCents = 100, BusinessId = 1},
+                new ProductService{id = 2, Name = "Product2", Description = "Description2", CostInCents = 200, BusinessId = 1},
+            };
+
+            context.ProductServices.AddRange(productServices);
+            context.SaveChanges();
         }
     }
 }
