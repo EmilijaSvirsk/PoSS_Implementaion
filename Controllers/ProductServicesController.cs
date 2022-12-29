@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PSP_Komanda32_API.Models;
-using PSP_Komanda32_API.Services;
+using PSP_Komanda32_API.Services.Database;
 using PSP_Komanda32_API.Services.Interfaces;
 
 namespace PSP_Komanda32_API.Controllers
@@ -10,11 +11,10 @@ namespace PSP_Komanda32_API.Controllers
     [ApiExplorerSettings(GroupName = "Manage product services")]
     public class ProductServicesController : ControllerBase
     {
-        readonly IRandomizer _randomizer;
-
-        public ProductServicesController(IRandomizer randomizer)
+        private readonly PoSSContext _context;
+        public ProductServicesController(PoSSContext context)
         {
-            _randomizer = randomizer;
+            _context = context;
         }
 
         /// <summary>
@@ -23,17 +23,10 @@ namespace PSP_Komanda32_API.Controllers
         /// <returns>list of product services</returns>
         // GET: api/<ProductServicesController>
         [HttpGet]
-        public IEnumerable<ProductService> GetAll()
+        public async Task<IEnumerable<ProductService>> GetAll()
         {
-            var list = new List<ProductService>();
-            var index = 50;
-
-            for (int i = 0; i < index; i++)
-            {
-                list.Add(_randomizer.GenerateRandomData<ProductService>());
-            }
-
-            return list;
+            var productServices = await _context.ProductServices.ToListAsync();
+            return productServices;
         }
 
         /// <summary>
@@ -45,17 +38,12 @@ namespace PSP_Komanda32_API.Controllers
         /// <response code="404">If the item is null</response>
         // GET api/<ProductServicesController>/5
         [HttpGet("{id}")]
-        public ActionResult<ProductService> Get(int id)
+        public async Task<ActionResult<ProductService>> Get(int id)
         {
-
-            var value = _randomizer.GenerateRandomData<ProductService>(id);
-
-            if (value == null)
-            {
-                return NotFound();
-            }
-
-            return value;
+            var productService = await _context.ProductServices.FindAsync(id); 
+            if (productService != null)
+                return Ok(productService);
+            return NotFound();
         }
 
         /// <summary>
@@ -67,12 +55,16 @@ namespace PSP_Komanda32_API.Controllers
         /// <response code="404">If the item is null</response>
         // POST api/<ProductServicesController>
         [HttpPost]
-        public ActionResult<ProductService> Post([FromBody] ProductService value)
+        public async Task<ActionResult<ProductService>> Post([FromBody] ProductService value)
         {
-            if (value != null)
-                return CreatedAtAction("Get", new { id = value.id }, value);
+            if (value == null)
+            {
+                return BadRequest();
+            }
 
-            return new StatusCodeResult(StatusCodes.Status404NotFound);
+            await _context.ProductServices.AddAsync(value);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(Get), new { id = value.id }, value);
         }
 
         /// <summary>
@@ -85,14 +77,20 @@ namespace PSP_Komanda32_API.Controllers
         /// <response code="404">if bad request</response>
         // PUT api/<ProductServicesController>/5
         [HttpPut]
-        public ActionResult<ProductService> Put(int id, [FromBody] ProductService value)
+        public async Task<ActionResult<ProductService>> Put(int id, [FromBody] ProductService value)
         {
-
-            if (id != value.id)
+            if (value == null)
             {
                 return BadRequest();
             }
-
+            var current = await _context.ProductServices.FindAsync(id);
+            if (current == null)
+            {
+                return NotFound();
+            }
+            value.id = id;
+            _context.Entry(current).CurrentValues.SetValues(value);
+            _context.SaveChanges();
             return NoContent();
         }
 
@@ -105,7 +103,14 @@ namespace PSP_Komanda32_API.Controllers
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
-            return Ok();
+            var productService = _context.ProductServices.Find(id);
+            if (productService == null)
+            {
+                return NotFound();
+            }
+            _context.ProductServices.Remove(productService);
+            _context.SaveChanges();
+            return NoContent();
         }
     }
 }
