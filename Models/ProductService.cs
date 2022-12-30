@@ -8,9 +8,14 @@ namespace PSP_Komanda32_API.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int id { get; set; }
-        public string Name { get; set; } = string.Empty;    
+        [Required]
+        [MinLength(1)]
+        public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        [Required]
+        [Range(0, int.MaxValue)]
         public int CostInCents { get; set; }
+        [Required]
         public int BusinessId { get; set; }
     }
 }

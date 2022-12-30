@@ -16,15 +16,6 @@ namespace PSP_Komanda32_API.Controllers
             _context = context;
         }
 
-        private string? CheckIsProductServiceValid(ProductService productService)
-        {
-            if (productService.Name == null || productService.Name == string.Empty)
-                return "Name is empty";
-            if (productService.CostInCents < 0)
-                return "Cost is less than 0";
-            return null;
-        }
-
         /// <summary>
         /// Gets all product services of a business from ProductService table
         /// </summary>
@@ -60,7 +51,8 @@ namespace PSP_Komanda32_API.Controllers
         public async Task<ActionResult> Get(int id)
         {
             var productService = await _context.ProductServices.FindAsync(id);
-            if (productService == null) {
+            if (productService == null)
+            {
                 return NotFound();
             }
             return Ok(productService);
@@ -83,11 +75,6 @@ namespace PSP_Komanda32_API.Controllers
             {
                 return NotFound("Business does not exist");
             }
-            var badRequestMessage = CheckIsProductServiceValid(value);
-            if (badRequestMessage != null)
-            {
-                return BadRequest("Invalid ProductService: " + badRequestMessage);
-            }
             await _context.ProductServices.AddAsync(value);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(Post), new { id = value.id }, value);
@@ -101,7 +88,7 @@ namespace PSP_Komanda32_API.Controllers
         /// <returns>one product service by id</returns>
         /// <response code="204">if the change is successful</response>
         /// <response code="400">if item is invalid</response>
-        /// <response code="404">if item does not exist/response>
+        /// <response code="404">if item does not exist</response>
         // PUT api/<ProductServicesController>/5
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -111,11 +98,6 @@ namespace PSP_Komanda32_API.Controllers
             if (current == null)
             {
                 return NotFound();
-            }
-            var badRequestMessage = CheckIsProductServiceValid(value);
-            if (badRequestMessage != null)
-            {
-                return BadRequest("Invalid ProductService: " + badRequestMessage);
             }
             if (value.BusinessId != current.BusinessId)
             {
