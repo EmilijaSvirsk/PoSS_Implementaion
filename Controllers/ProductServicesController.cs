@@ -24,7 +24,7 @@ namespace PSP_Komanda32_API.Controllers
         /// <response code="200">Returns found item</response>
         /// <response code="404">If business does not exist</response>
         // GET: api/<ProductServicesController>/5
-        [HttpGet("GetAllByBusiness/{businessId}")]
+        [HttpGet("GetAllByBusiness/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductService>))]
         public async Task<ActionResult> GetAll(int businessId)
         {
@@ -77,7 +77,7 @@ namespace PSP_Komanda32_API.Controllers
             }
             await _context.ProductServices.AddAsync(value);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(Post), new { id = value.id }, value);
+            return CreatedAtAction(nameof(Get), new { id = value.id }, value);
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace PSP_Komanda32_API.Controllers
                 return NotFound();
             }
             _context.ProductServices.Remove(productService);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace PSP_Komanda32_API.Models
 {
@@ -17,5 +18,8 @@ namespace PSP_Komanda32_API.Models
         public int CostInCents { get; set; }
         [Required]
         public int BusinessId { get; set; }
+        
+        [JsonIgnore]
+        public List<Orders> Orders { get; set; } = new List<Orders>();
     }
 }

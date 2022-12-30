@@ -48,6 +48,24 @@ namespace PSP_Komanda32_API.Services.Database
 
             context.ProductServices.AddRange(productServices);
             context.SaveChanges();
+
+            var customers = new Customer[]
+            {
+                new Customer{id = 1, Name = "Customer1", Surname = "Surname1", Email = "abc@email.com", Password = "password", LoyaltyPoints = 100 },
+                new Customer{id = 2, Name = "Customer2", Surname = "Surname2", Email = "abd@email.com", Password = "password", LoyaltyPoints = 200 },
+            };
+
+            context.Customers.AddRange(customers);
+            context.SaveChanges();
+
+            var businessAdministrators = new BusinessAdministrator[]
+            {
+                new BusinessAdministrator{id = 1, Name = "BusinessAdmin1", Surname = "Surname1", Email = "something@something.lt", Password = "password", BusinessId = 1},
+                new BusinessAdministrator{id = 2, Name = "BusinessAdmin2", Surname = "Surname2", Email = "businessAdmin2@antra.com", Password = "password", BusinessId = 2},
+            };
+
+            context.BusinessAdministrators.AddRange(businessAdministrators);
+            context.SaveChanges();
         }
     }
 }
