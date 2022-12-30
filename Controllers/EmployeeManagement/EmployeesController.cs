@@ -4,7 +4,6 @@ using PSP_Komanda32_API.Services;
 using PSP_Komanda32_API.Services.Interfaces;
 using PSP_Komanda32_API.Services.Database;
 using Microsoft.EntityFrameworkCore;
-using PSP_Komanda32_API.Services.Utils;
 
 namespace PSP_Komanda32_API.Controllers.EmployeeManagement
 {
@@ -66,24 +65,12 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
         {
             _context.Employees.AddAsync(value);
 
-            var checkResponse = Employee.CheckIfValid(value);
+            var response = Employee.CheckIfValid(value);
 
-            if (checkResponse == 1)
-                return BadRequest("Invalid body: values of Employee cannot be null");
-            else if (checkResponse == 2)
-                return BadRequest("Invalid body: invalid Employee Id");
-            else if (checkResponse == 3)
-                return BadRequest("Invalid body: invalid Employee Name");
-            else if (checkResponse == 4)
-                return BadRequest("Invalid body: invalid Employee Surname");
-            else if (checkResponse == 5)
-                return BadRequest("Invalid body: invalid Employee Email");
-            else if (checkResponse == 6)
-                return BadRequest("Invalid body: invalid Employee Username");
-            else if (checkResponse == 7)
-                return BadRequest("Invalid body: invalid Employee Password");
-            else if (checkResponse == 8)
-                return BadRequest("Invalid body: invalid Employee CreatedBy");
+            if(!response.Equals("Ok"))
+            {
+                return BadRequest("Invalid body: " + response);
+            }
 
             _context.SaveChanges();
 
@@ -111,24 +98,12 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
 
             value.id = id;
 
-            var checkResponse = Employee.CheckIfValid(value);
+            var response = Employee.CheckIfValid(value);
 
-            if (checkResponse == 1)
-                return BadRequest("Invalid body: values of Employee cannot be null");
-            else if (checkResponse == 2)
-                return BadRequest("Invalid body: invalid Employee Id");
-            else if (checkResponse == 3)
-                return BadRequest("Invalid body: invalid Employee Name");
-            else if (checkResponse == 4)
-                return BadRequest("Invalid body: invalid Employee Surname");
-            else if (checkResponse == 5)
-                return BadRequest("Invalid body: invalid Employee Email");
-            else if (checkResponse == 6)
-                return BadRequest("Invalid body: invalid Employee Username");
-            else if (checkResponse == 7)
-                return BadRequest("Invalid body: invalid Employee Password");
-            else if (checkResponse == 8)
-                return BadRequest("Invalid body: invalid Employee CreatedBy");
+            if (!response.Equals("Ok"))
+            {
+                return BadRequest("Invalid body: " + response);
+            }
 
             _context.ChangeTracker.Clear();
             _context.Employees.Update(value);
