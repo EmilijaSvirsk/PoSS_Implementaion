@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PSP_Komanda32_API.Models;
-using PSP_Komanda32_API.Services;
-using PSP_Komanda32_API.Services.Interfaces;
 using PSP_Komanda32_API.Services.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,9 +24,18 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
         /// <returns>list of employees</returns>
         // GET: api/<EmployeesController>
         [HttpGet]
-        public async Task<List<Employee>> GetAll()
+        public async Task<List<EmployeeDTO>> GetAll()
         {
-            return await _context.Employees.ToListAsync();
+            var employee = await _context.Employees.ToListAsync();
+
+            return employee.Select(x => new EmployeeDTO
+            {
+                id = x.id,
+                Name = x.Name,
+                Surname = x.Surname,
+                Email = x.Email,
+                CreatedBy = x.CreatedBy
+            }).ToList();
         }
 
         /// <summary>
@@ -40,7 +47,7 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
         /// <response code="404">If the item is null</response>
         // GET api/<EmployeesController>/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Employee>> Get(int id)
+        public async Task<ActionResult<EmployeeDTO>> Get(int id)
         {
             var employee = await _context.Employees.FindAsync(id);
 
@@ -49,7 +56,14 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
                 return NotFound();
             }
 
-            return Ok(employee);
+            return Ok(new EmployeeDTO
+            {
+                id = employee.id,
+                Name = employee.Name,
+                Surname = employee.Surname,
+                Email = employee.Email,
+                CreatedBy = employee.CreatedBy
+            });
         }
 
         /// <summary>
@@ -61,13 +75,19 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
         /// <response code="400">If the item is null</response>
         // POST api/<EmployeesController>
         [HttpPost]
-        public ActionResult<Employee> Post([FromBody] Employee value)
+        public async Task<ActionResult<Employee>> Post([FromBody] Employee value)
         {
-            _context.Employees.AddAsync(value);
+            var businessAdmin = await _context.BusinessAdministrators.FindAsync(value.CreatedBy);
+            await _context.Employees.AddAsync(value);
+
+            if (businessAdmin == null)
+            {
+                return BadRequest("No such business admin with the given CreatedBy value");
+            }
 
             var response = Employee.CheckIfValid(value);
 
-            if(!response.Equals("Ok"))
+            if (!response.Equals("Ok"))
             {
                 return BadRequest("Invalid body: " + response);
             }
@@ -87,13 +107,19 @@ namespace PSP_Komanda32_API.Controllers.EmployeeManagement
         /// <response code="400">if bad request</response>
         // PUT api/<EmployeesController>/5
         [HttpPut]
-        public ActionResult<Employee> Put(int id, [FromBody] Employee value)
+        public async Task<ActionResult<Employee>> Put(int id, [FromBody] Employee value)
         {
-            var employee = _context.Employees.Find(id);
+            var employee = await _context.Employees.FindAsync(id);
+            var businessAdmin = await _context.BusinessAdministrators.FindAsync(value.CreatedBy);
 
             if (employee == null)
             {
                 return BadRequest("No such employee with the given id");
+            }
+
+            if (businessAdmin == null)
+            {
+                return BadRequest("No such business admin with the given CreatedBy value");
             }
 
             value.id = id;

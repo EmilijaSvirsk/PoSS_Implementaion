@@ -20,7 +20,7 @@ namespace PSP_Komanda32_API.Models
 
         public static string CheckIfValid(Courier courier)
         {
-            if (courier.Name == null || courier.Surname == null || courier.Email == null || courier.Username == null || courier.Password == null || courier.CreatedBy == 0 || courier.PhoneNumber == null || courier.Transportation == null)
+            if (courier.Name == null || courier.Surname == null || courier.Email == null || courier.Username == null || courier.Password == null || courier.CreatedBy == 0 || courier.PhoneNumber == null)
             {
                 return "values of Courier cannot be null";
             }
