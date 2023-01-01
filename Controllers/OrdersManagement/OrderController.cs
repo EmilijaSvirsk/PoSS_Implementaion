@@ -61,9 +61,16 @@ namespace PSP_Komanda32_API.Controllers.OrdersManagement
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Order))]
         public async Task<ActionResult> Post([FromBody] Order value)
         {
+            if (await _context.Orders.FindAsync(value.id) == null) {
+                return BadRequest("Orders does not exist");
+            }
+            if (await _context.Order.FindAsync(value.id) != null)
+            {
+                return BadRequest("Order already exists");
+            }
             if (await _context.Couriers.FindAsync(value.CourierId) == null)
             {
-                return BadRequest();
+                return BadRequest("Courier does not exist");
             }
             await _context.Order.AddAsync(value);
             await _context.SaveChangesAsync();

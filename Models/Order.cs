@@ -5,8 +5,8 @@ namespace PSP_Komanda32_API.Models
 {
     public class Order
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Required]
+        [Key, ForeignKey("Orders")]
         public int id { get; set; }
         public OrderStatus Status { get; set; }
         [Required]
