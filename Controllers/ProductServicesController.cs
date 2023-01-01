@@ -19,22 +19,22 @@ namespace PSP_Komanda32_API.Controllers
         /// <summary>
         /// Gets all product services of a business from ProductService table
         /// </summary>
-        /// <param name="businessId">id of business</param>
+        /// <param name="id">id of business</param>
         /// <returns>list of product services</returns>
         /// <response code="200">Returns found item</response>
         /// <response code="404">If business does not exist</response>
         // GET: api/<ProductServicesController>/5
         [HttpGet("GetAllByBusiness/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductService>))]
-        public async Task<ActionResult> GetAll(int businessId)
+        public async Task<ActionResult> GetAll(int id)
         {
-            var businessPlace = await _context.BusinessPlaces.FindAsync(businessId);
+            var businessPlace = await _context.BusinessPlaces.FindAsync(id);
             if (businessPlace == null)
             {
                 return NotFound();
             }
             var productServices = await _context.ProductServices
-                .Where(x => x.BusinessId == businessId).ToListAsync();
+                .Where(x => x.BusinessId == id).ToListAsync();
             return Ok(productServices);
         }
 
