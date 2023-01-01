@@ -34,7 +34,7 @@ namespace PSP_Komanda32_API.Controllers
                 return NotFound();
             }
             var productServices = await _context.ProductServices
-                .Where(x => x.BusinessId == id).ToListAsync();
+                .Where(x => !x.isDeleted && x.BusinessId == id).ToListAsync();
             return Ok(productServices);
         }
 
@@ -51,7 +51,7 @@ namespace PSP_Komanda32_API.Controllers
         public async Task<ActionResult> Get(int id)
         {
             var productService = await _context.ProductServices.FindAsync(id);
-            if (productService == null)
+            if (productService == null || productService.isDeleted)
             {
                 return NotFound();
             }
@@ -95,7 +95,7 @@ namespace PSP_Komanda32_API.Controllers
         public async Task<ActionResult> Put(int id, [FromBody] ProductService value)
         {
             var current = await _context.ProductServices.FindAsync(id);
-            if (current == null)
+            if (current == null || current.isDeleted)
             {
                 return NotFound();
             }
@@ -120,12 +120,21 @@ namespace PSP_Komanda32_API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<ActionResult> Delete(int id)
         {
-            var productService = await _context.ProductServices.FindAsync(id);
-            if (productService == null)
+            var productService = await _context.ProductServices
+                .Include(x => x.OrderProducts)
+                .FirstOrDefaultAsync(x => x.id == id);
+            if (productService == null || productService.isDeleted)
             {
                 return NotFound();
             }
-            _context.ProductServices.Remove(productService);
+            if (productService.OrderProducts.Count > 0)
+            {
+                _context.Entry(productService).CurrentValues.SetValues(productService.isDeleted = true);
+            }
+            else
+            {
+                _context.ProductServices.Remove(productService);
+            }
             await _context.SaveChangesAsync();
             return NoContent();
         }

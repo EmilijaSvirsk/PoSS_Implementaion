@@ -21,8 +21,8 @@ namespace PSP_Komanda32_API.Models
         public bool IsAccepted { get; set; }
         public string DeclineReason { get; set; } = string.Empty;
         [Required]
-        public int DeliveryAddressId { get; set; }
+        public int DeliveryAddressId { get; set; }       
 
-        public List<ProductService> ProductServices { get; set; } = new List<ProductService>();
+        public virtual ICollection<OrderProducts> OrderProducts { get; set; } = new List<OrderProducts>();
     }
 }

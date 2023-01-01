@@ -41,9 +41,9 @@ namespace PSP_Komanda32_API.Controllers
                 DeclineReason = o.DeclineReason,
                 PriceInCents = _context
                     .Entry(o)
-                    .Collection(o => o.ProductServices)
+                    .Collection(o => o.OrderProducts)
                     .Query()
-                    .Sum(ps => ps.CostInCents)
+                    .Sum(op => op.CostInCents)
             });
             return Ok(ordersDTO);
         }
@@ -57,17 +57,42 @@ namespace PSP_Komanda32_API.Controllers
         /// <response code="404">If the item is null</response>
         // GET api/<OrdersController>/5
         [HttpGet("{id}")]
-        [ProducesResponseType(200, Type = typeof(Orders))]
+        [ProducesResponseType(200, Type = typeof(GetOrdersDTO))]
         public async Task<ActionResult> Get(int id)
         {
-            var order = await _context.Orders
-                .Include(o => o.ProductServices)
-                .FirstOrDefaultAsync(o => o.id == id);
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.id == id);
             if (order == null)
             {
                 return NotFound();
             }
-            return Ok(order);
+            var orderDTO = new GetOrdersDTO
+            {
+                Id = order.id,
+                EmployeeId = order.EmployeeId,
+                CustomerId = order.CustomerId,
+                Date = order.Date,
+                Payment = order.Payment,
+                IsPaid = order.IsPaid,
+                Comment = order.Comment,
+                IsAccepted = order.IsAccepted,
+                DeclineReason = order.DeclineReason,
+                DeliveryAddressId = order.DeliveryAddressId,
+                ProductServices = await _context
+                    .Entry(order)
+                    .Collection(o => o.OrderProducts)
+                    .Query()
+                    .Select(op =>
+                        new ProductService
+                        {
+                            id = op.ProductService.id,
+                            Name = op.ProductService.Name,
+                            Description = op.ProductService.Description,
+                            CostInCents = op.CostInCents,
+                            BusinessId = op.ProductService.BusinessId
+                        })
+                    .ToListAsync()
+            };
+            return Ok(orderDTO);
         }
 
         /// <summary>
@@ -102,9 +127,9 @@ namespace PSP_Komanda32_API.Controllers
                 DeclineReason = o.DeclineReason,
                 PriceInCents = _context
                     .Entry(o)
-                    .Collection(o => o.ProductServices)
+                    .Collection(o => o.OrderProducts)
                     .Query()
-                    .Sum(ps => ps.CostInCents)
+                    .Sum(op => op.CostInCents)
             });
             return Ok(ordersDTOs);
         }
@@ -141,9 +166,9 @@ namespace PSP_Komanda32_API.Controllers
                 DeclineReason = o.DeclineReason,
                 PriceInCents = _context
                     .Entry(o)
-                    .Collection(o => o.ProductServices)
+                    .Collection(o => o.OrderProducts)
                     .Query()
-                    .Sum(ps => ps.CostInCents)
+                    .Sum(op => op.CostInCents)
             });
             return Ok(ordersDTOs);
         }
@@ -158,7 +183,7 @@ namespace PSP_Komanda32_API.Controllers
         /// <response code="404">If customer or employee do not exist</response>
         // POST api/<OrdersController>
         [HttpPost]
-        [ProducesResponseType(201, Type = typeof(CreateOrdersDTO))]
+        [ProducesResponseType(201, Type = typeof(CreateOrdersDTO))] // TODO: change return type
         public async Task<ActionResult> Post([FromBody] CreateOrdersDTO value)
         {
             var employee = await _context.Employees.FindAsync(value.EmployeeId);
@@ -205,7 +230,11 @@ namespace PSP_Komanda32_API.Controllers
                 IsAccepted = value.IsAccepted,
                 DeclineReason = value.DeclineReason,
                 DeliveryAddressId = value.DeliveryAddressId,
-                ProductServices = productServices
+                OrderProducts = productServices.Select(ps => new OrderProducts
+                {
+                    ProductServiceId = ps.id,
+                    CostInCents = ps.CostInCents
+                }).ToList()
             };
             await _context.Orders.AddAsync(orders);
             await _context.SaveChangesAsync();
@@ -226,7 +255,7 @@ namespace PSP_Komanda32_API.Controllers
         public async Task<ActionResult> Put(int id, [FromBody] CreateOrdersDTO value)
         {
             var current = await _context.Orders
-                .Include("ProductServices")
+                .Include("OrderProducts")
                 .FirstOrDefaultAsync(o => o.id == id);
             if (current == null)
             {
@@ -261,10 +290,11 @@ namespace PSP_Komanda32_API.Controllers
                     return NotFound("Address does not belong to this customer");
                 }
             }
-            var productServices = await _context.ProductServices.Where(ps => value.ProductServiceIds.Contains(ps.id)).ToListAsync();
+            var productServices = await _context.ProductServices
+                .Where(ps => !ps.isDeleted && value.ProductServiceIds.Contains(ps.id)).ToListAsync();
             if (productServices.Count != value.ProductServiceIds.Count)
             {
-                return NotFound("Product or service does not exist");
+                return NotFound("One or more product or service do not exist");
             }
             var orders = new Orders
             {
@@ -279,7 +309,12 @@ namespace PSP_Komanda32_API.Controllers
                 DeclineReason = value.DeclineReason,
                 DeliveryAddressId = value.DeliveryAddressId,
             };
-            current.ProductServices = productServices;
+            current.OrderProducts = productServices.Select(ps => new OrderProducts
+            {
+                ProductServiceId = ps.id,
+                CostInCents = ps.CostInCents
+            }).ToList();
+
             _context.Entry(current).CurrentValues.SetValues(orders);
             _context.SaveChanges();
             return NoContent();

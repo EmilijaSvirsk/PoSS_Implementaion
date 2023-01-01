@@ -66,6 +66,15 @@ namespace PSP_Komanda32_API.Services.Database
 
             context.BusinessAdministrators.AddRange(businessAdministrators);
             context.SaveChanges();
+
+            var orders = new Orders[]
+            {
+                new Orders{id = 1, CustomerId = 1, EmployeeId = 1, Date = DateTime.Now, Payment = Payment.AtSite, IsPaid = true, Comment = "Comment", IsAccepted = true, DeclineReason = "DeclineReason", DeliveryAddressId = 1, OrderProducts = new List<OrderProducts>() { new OrderProducts() { ProductServiceId = 1, CostInCents = 100 } } },
+                new Orders{id = 2, CustomerId = 2, EmployeeId = 2, Date = DateTime.Now, Payment = Payment.AtSite, IsPaid = true, Comment = "Comment", IsAccepted = true, DeclineReason = "DeclineReason", DeliveryAddressId = 2, OrderProducts = new List<OrderProducts>() { new OrderProducts() { ProductServiceId = 2, CostInCents = 200 } } },
+            };
+
+            context.Orders.AddRange(orders);
+            context.SaveChanges();
         }
     }
 }

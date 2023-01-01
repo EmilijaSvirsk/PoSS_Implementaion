@@ -17,9 +17,11 @@ namespace PSP_Komanda32_API.Models
         [Range(0, int.MaxValue)]
         public int CostInCents { get; set; }
         [Required]
-        public int BusinessId { get; set; }
+        public int BusinessId { get; set; } 
+        [JsonIgnore]
+        public bool isDeleted { get; set; }
         
         [JsonIgnore]
-        public List<Orders> Orders { get; set; } = new List<Orders>();
+        public List<OrderProducts> OrderProducts { get; set; } = new List<OrderProducts>();
     }
 }
