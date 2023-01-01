@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PSP_Komanda32_API.Models;
-using PSP_Komanda32_API.Services.Interfaces;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using PSP_Komanda32_API.Services.Database;
 
 namespace PSP_Komanda32_API.Controllers.OrdersManagement
 {
@@ -11,11 +10,10 @@ namespace PSP_Komanda32_API.Controllers.OrdersManagement
     [ApiExplorerSettings(GroupName = "Manage orders")]
     public class OrderController : ControllerBase
     {
-        readonly IRandomizer _randomizer;
-
-        public OrderController(IRandomizer randomizer)
+        private readonly PoSSContext _context;
+        public OrderController(PoSSContext context)
         {
-            _randomizer = randomizer;
+            _context = context;
         }
 
         /// <summary>
@@ -24,17 +22,11 @@ namespace PSP_Komanda32_API.Controllers.OrdersManagement
         /// <returns>list of orders</returns>
         // GET: api/<OrderController>
         [HttpGet]
-        public IEnumerable<Order> GetAll()
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Order>))]
+        public async Task<ActionResult> GetAll()
         {
-            var list = new List<Order>();
-            var index = 50;
-
-            for (int i = 0; i < index; i++)
-            {
-                list.Add(_randomizer.GenerateRandomData<Order>());
-            }
-
-            return list;
+            var orders = await _context.Order.ToListAsync();
+            return Ok(orders);
         }
 
         /// <summary>
@@ -42,20 +34,19 @@ namespace PSP_Komanda32_API.Controllers.OrdersManagement
         /// </summary>
         /// <param name="id">id of order</param>
         /// <returns>one order by id</returns>
-        /// <response code="201">Returns found item</response>
-        /// <response code="404">If the item is null</response>
+        /// <response code="200">Returns found item</response>
+        /// <response code="404">If the item does not exist</response>
         // GET api/<OrdersController>/5
         [HttpGet("{id}")]
-        public ActionResult<Order> Get(int id)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Order))]
+        public async Task<ActionResult> Get(int id)
         {
-            var value = _randomizer.GenerateRandomData<Order>(id);
-
-            if (value == null)
+            var order = await _context.Order.FindAsync(id);
+            if (order == null)
             {
                 return NotFound();
             }
-
-            return value;
+            return Ok(order);
         }
 
         /// <summary>
@@ -64,15 +55,19 @@ namespace PSP_Komanda32_API.Controllers.OrdersManagement
         /// <param name="value">new created order</param>
         /// <returns>one order by id</returns>
         /// <response code="201">Returns the newly created item</response>
-        /// <response code="404">If the item is null</response>
+        /// <response code="400">If courier does not exist</response>
         // POST api/<OrdersController>
         [HttpPost]
-        public ActionResult<Order> Post([FromBody] Order value)
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Order))]
+        public async Task<ActionResult> Post([FromBody] Order value)
         {
-            if (value != null)
-                return CreatedAtAction("Get", new { id = value.id }, value);
-
-            return new StatusCodeResult(StatusCodes.Status404NotFound);
+            if (await _context.Couriers.FindAsync(value.CourierId) == null)
+            {
+                return BadRequest();
+            }
+            await _context.Order.AddAsync(value);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(Get), new { id = value.id }, value);
         }
 
         /// <summary>
@@ -82,16 +77,24 @@ namespace PSP_Komanda32_API.Controllers.OrdersManagement
         /// <param name="value">changed order</param>
         /// <returns>one order by id</returns>
         /// <response code="204">if the change is successful</response>
-        /// <response code="404">if bad request</response>
+        /// <response code="400">if courier does not exist</response>
+        /// <response code="404">if item does not exist</response>
         // PUT api/<OrdersController>/5
         [HttpPut]
-        public ActionResult<Order> Put(int id, [FromBody] Order value)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<ActionResult> Put(int id, [FromBody] Order value)
         {
-            if (id != value.id)
+            var current = await _context.Order.FindAsync(id);
+            if (current == null)
             {
-                return BadRequest();
+                return NotFound();
             }
-
+            if (await _context.Couriers.FindAsync(value.CourierId) == null)
+            {
+                 return BadRequest("Courier does not exist");
+            }
+            _context.Entry(current).CurrentValues.SetValues(value);
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
@@ -100,11 +103,20 @@ namespace PSP_Komanda32_API.Controllers.OrdersManagement
         /// </summary>
         /// <param name="id">order id</param>
         /// <response code="204">if delete is successful</response>
+        /// <response code="404">if item does not exist</response>
         // DELETE api/<OrdersController>/5
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<ActionResult> Delete(int id)
         {
-            return Ok();
+            var current = await _context.Order.FindAsync(id);
+            if (current == null)
+            {
+                return NotFound();
+            }
+            _context.Order.Remove(current);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }
