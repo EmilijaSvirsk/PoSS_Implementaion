@@ -8,11 +8,13 @@ namespace PSP_Komanda32_API.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int id { get; set; }
-        [Range(0, int.MaxValue)]
+        [Required]
+        [Range(0, 100)]
         public decimal Credit { get; set; }
         [Required]
         public int CreatedBy { get; set; }
-        [Range(0, int.MaxValue)]
+        [Required]
+        [Range(0, 100)]
         public int LoaltyCost { get; set; }
     }
 }

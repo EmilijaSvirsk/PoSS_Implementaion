@@ -30,6 +30,32 @@ namespace PSP_Komanda32_API.Services.Database
 
             context.Employees.AddRange(employees);
             context.SaveChanges();
+
+            var businessManagers = new BusinessManager[]
+            {
+                new BusinessManager{id=1, Name="Business", Surname="Manager", Email="businessmanager@gmail.com", Username="businessmanager", Password="businessmanager123", BusinessId=1,CreatedBy=1}
+            };
+
+            context.BusinessManagers.AddRange(businessManagers);
+            context.SaveChanges();
+
+            var taxes = new Tax[]
+            {
+                new Tax{id=1, Percentage=22.3M, Name="Normal Tax", Description="Tax for normal purchases."},
+                new Tax{id=2, Percentage=50.0M, Name="Special Tax", Description="Tax for special purchases."}
+            };
+
+            context.Tax.AddRange(taxes);
+            context.SaveChanges();
+
+            var discounts = new Discount[]
+            {
+                new Discount{id=1, Credit=10.0M, CreatedBy=1, LoaltyCost=20},
+                new Discount{id=2, Credit=80.9M, CreatedBy=1, LoaltyCost=99}
+            };
+
+            context.Discount.AddRange(discounts);
+            context.SaveChanges();
         }
     }
 }

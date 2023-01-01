@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PSP_Komanda32_API.Models;
+using PSP_Komanda32_API.DTOs;
 using PSP_Komanda32_API.Services;
 using PSP_Komanda32_API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -65,9 +66,9 @@ namespace PSP_Komanda32_API.Controllers.PriceManagement
         // POST api/<DiscountsController>
         [HttpPost]
         [ProducesResponseType(201, Type = typeof(Discount))]
-        public async Task<ActionResult> Post([FromBody] Discount value)
+        public async Task<ActionResult> Post([FromBody] CreateDiscountDTO value)
         {
-            var createdBy = await _context.BusinessManager.FindAsync(value.CreatedBy);
+            var createdBy = await _context.BusinessManagers.FindAsync(value.CreatedBy);
             if (createdBy == null)
             {
                 return NotFound("Business manager does not exist");
@@ -107,7 +108,7 @@ namespace PSP_Komanda32_API.Controllers.PriceManagement
 
             if (value.CreatedBy != current.CreatedBy)
             {
-                var employee = await _context.BusinessManager.FindAsync(value.CreatedBy);
+                var employee = await _context.BusinessManagers.FindAsync(value.CreatedBy);
                 if (employee == null)
                 {
                     return NotFound("Business manager does not exist");

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PSP_Komanda32_API.Models;
+using PSP_Komanda32_API.DTOs;
 using PSP_Komanda32_API.Services;
 using PSP_Komanda32_API.Services.Database;
 using PSP_Komanda32_API.Services.Interfaces;
@@ -63,7 +64,7 @@ namespace PSP_Komanda32_API.Controllers.PriceManagement
         // POST api/<TaxesController>
         [HttpPost]
         [ProducesResponseType(201, Type = typeof(Tax))]
-        public async Task<ActionResult> Post([FromBody] Tax value)
+        public async Task<ActionResult> Post([FromBody] CreateTaxDTO value)
         {
             var tax = new Tax
             {
