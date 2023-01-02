@@ -1,4 +1,7 @@
-﻿namespace PSP_Komanda32_API.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace PSP_Komanda32_API.Models
 {
     public class BusinessManager
     {

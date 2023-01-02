@@ -1,13 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-namespace PSP_Komanda32_API.Models
+namespace PSP_Komanda32_API.DTOs
 {
-    public class Tax
+    public class CreateTaxDTO
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int id { get; set; }
         [Required]
         [Range(0, 100)]
         public decimal Percentage { get; set; }
