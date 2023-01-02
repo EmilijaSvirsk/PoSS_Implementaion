@@ -13,6 +13,6 @@ namespace PSP_Komanda32_API.DTOs
         public string Comment { get; set; } = string.Empty;
         public bool IsAccepted { get; set; }
         public string DeclineReason { get; set; } = string.Empty;
-        public int PriceInCents { get; set; }
+        public int TotalCostInCents { get; set; }
     }
 }

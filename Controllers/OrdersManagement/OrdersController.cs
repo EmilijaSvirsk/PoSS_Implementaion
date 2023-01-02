@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using PSP_Komanda32_API.Models;
 using PSP_Komanda32_API.DTOs;
 using PSP_Komanda32_API.Services.Database;
+using PSP_Komanda32_API.Extensions;
+
 namespace PSP_Komanda32_API.Controllers
 {
     [Route("api/[controller]")]
@@ -17,6 +19,14 @@ namespace PSP_Komanda32_API.Controllers
             _context = context;
         }
 
+        private IQueryable<OrderProducts> GetOrderProducts(Orders orders)
+        {
+            return _context
+                .Entry(orders)
+                .Collection(o => o.OrderProducts)
+                .Query();
+        }
+
         /// <summary>
         /// Gets all data from table orders
         /// </summary>
@@ -28,23 +38,7 @@ namespace PSP_Komanda32_API.Controllers
         public async Task<ActionResult> GetAll()
         {
             var orders = await _context.Orders.ToListAsync();
-            var ordersDTO = orders.Select(o => new OrdersSummaryDTO
-            {
-                id = o.id,
-                EmployeeId = o.EmployeeId,
-                CustomerId = o.CustomerId,
-                Date = o.Date,
-                Payment = o.Payment,
-                IsPaid = o.IsPaid,
-                Comment = o.Comment,
-                IsAccepted = o.IsAccepted,
-                DeclineReason = o.DeclineReason,
-                PriceInCents = _context
-                    .Entry(o)
-                    .Collection(o => o.OrderProducts)
-                    .Query()
-                    .Sum(op => op.CostInCents)
-            });
+            var ordersDTO = orders.Select(o => o.ToOrdersSummaryDTO(GetOrderProducts(o)));
             return Ok(ordersDTO);
         }
 
@@ -65,34 +59,7 @@ namespace PSP_Komanda32_API.Controllers
             {
                 return NotFound();
             }
-            var orderDTO = new GetOrdersDTO
-            {
-                Id = order.id,
-                EmployeeId = order.EmployeeId,
-                CustomerId = order.CustomerId,
-                Date = order.Date,
-                Payment = order.Payment,
-                IsPaid = order.IsPaid,
-                Comment = order.Comment,
-                IsAccepted = order.IsAccepted,
-                DeclineReason = order.DeclineReason,
-                DeliveryAddressId = order.DeliveryAddressId,
-                ProductServices = await _context
-                    .Entry(order)
-                    .Collection(o => o.OrderProducts)
-                    .Query()
-                    .Select(op =>
-                        new ProductService
-                        {
-                            id = op.ProductService.id,
-                            Name = op.ProductService.Name,
-                            Description = op.ProductService.Description,
-                            CostInCents = op.CostInCents,
-                            BusinessId = op.ProductService.BusinessId
-                        })
-                    .ToListAsync()
-            };
-            return Ok(orderDTO);
+            return Ok(order.ToGetOrdersDTO(GetOrderProducts(order)));
         }
 
         /// <summary>
@@ -114,23 +81,7 @@ namespace PSP_Komanda32_API.Controllers
                 return NotFound();
             }
             var orders = await _context.Orders.Where(o => o.EmployeeId == id).ToListAsync();
-            var ordersDTOs = orders.Select(o => new OrdersSummaryDTO
-            {
-                id = o.id,
-                EmployeeId = o.EmployeeId,
-                CustomerId = o.CustomerId,
-                Date = o.Date,
-                Payment = o.Payment,
-                IsPaid = o.IsPaid,
-                Comment = o.Comment,
-                IsAccepted = o.IsAccepted,
-                DeclineReason = o.DeclineReason,
-                PriceInCents = _context
-                    .Entry(o)
-                    .Collection(o => o.OrderProducts)
-                    .Query()
-                    .Sum(op => op.CostInCents)
-            });
+            var ordersDTOs = orders.Select(o => o.ToOrdersSummaryDTO(GetOrderProducts(o)));
             return Ok(ordersDTOs);
         }
 
@@ -153,24 +104,41 @@ namespace PSP_Komanda32_API.Controllers
                 return NotFound();
             }
             var orders = await _context.Orders.Where(o => o.CustomerId == id).ToListAsync();
-            var ordersDTOs = orders.Select(o => new OrdersSummaryDTO
-            {
-                id = o.id,
-                EmployeeId = o.EmployeeId,
-                CustomerId = o.CustomerId,
-                Date = o.Date,
-                Payment = o.Payment,
-                IsPaid = o.IsPaid,
-                Comment = o.Comment,
-                IsAccepted = o.IsAccepted,
-                DeclineReason = o.DeclineReason,
-                PriceInCents = _context
-                    .Entry(o)
-                    .Collection(o => o.OrderProducts)
-                    .Query()
-                    .Sum(op => op.CostInCents)
-            });
+            var ordersDTOs = orders.Select(o => o.ToOrdersSummaryDTO(GetOrderProducts(o)));
             return Ok(ordersDTOs);
+        }
+
+        private async Task<string?> CheckIsAddressValid(int addressId, int customerId)
+        {
+            var address = await _context.Addresses.FindAsync(addressId);
+            if (address == null)
+            {
+                return "Address does not exist";
+            }
+            if (address.CustomerId != customerId)
+            {
+                return "Address does not belong to customer";
+            }
+            return null;
+        }
+
+        private async Task<string?> CheckIsBusinessValid(int employeeId, List<ProductService> productServices)
+        {
+            var employee = await _context.Employees.FindAsync(employeeId);
+            if (employee == null)
+            {
+                return "Employee does not exist";
+            }
+            var businessAdministrator = await _context.BusinessAdministrators.FindAsync(employee.CreatedBy);
+            if (businessAdministrator == null)
+            {
+                throw new Exception("Employee has no associated business");
+            }
+            if (!productServices.All(ps => ps.BusinessId == businessAdministrator.BusinessId))
+            {
+                return "Product or service does not belong to this business";
+            }
+            return null;
         }
 
         /// <summary>
@@ -180,65 +148,42 @@ namespace PSP_Komanda32_API.Controllers
         /// <returns>one order by id</returns>
         /// <response code="201">Returns the newly created item</response>
         /// <response code="400">If the item is incorrect</response>
-        /// <response code="404">If customer or employee do not exist</response>
         // POST api/<OrdersController>
         [HttpPost]
-        [ProducesResponseType(201, Type = typeof(CreateOrdersDTO))] // TODO: change return type
+        [ProducesResponseType(201, Type = typeof(GetOrdersDTO))]
         public async Task<ActionResult> Post([FromBody] CreateOrdersDTO value)
         {
-            var employee = await _context.Employees.FindAsync(value.EmployeeId);
-            if (employee == null)
-            {
-                return NotFound("Employee does not exist");
-            }
-            var businessAdministrator = await _context.BusinessAdministrators.FindAsync(employee.CreatedBy);
-            if (businessAdministrator == null)
-            {
-                return StatusCode(500, "Employee has no associated business");
-            }
             if (await _context.Customers.FindAsync(value.CustomerId) == null)
             {
-                return NotFound("Customer does not exist");
+                return BadRequest("Customer does not exist");
             }
             var productServices = await _context.ProductServices.Where(ps => value.ProductServiceIds.Contains(ps.id)).ToListAsync();
             if (productServices.Count != value.ProductServiceIds.Count)
             {
-                return NotFound("Product or service does not exist");
+                return BadRequest("Product or service does not exist");
             }
-            if (!productServices.All(ps => ps.BusinessId == businessAdministrator.BusinessId))
+            try
             {
-                return NotFound("Product or service does not belong to this business");
-            }
-            var address = await _context.Addresses.FindAsync(value.DeliveryAddressId);
-            if (address == null)
-            {
-                return NotFound("Address does not exist");
-            }
-            if (address.CustomerId != value.CustomerId)
-            {
-                return NotFound("Address does not belong to this customer");
-            }
-
-            var orders = new Orders
-            {
-                EmployeeId = value.EmployeeId,
-                CustomerId = value.CustomerId,
-                Date = value.Date,
-                Payment = value.Payment,
-                IsPaid = value.IsPaid,
-                Comment = value.Comment,
-                IsAccepted = value.IsAccepted,
-                DeclineReason = value.DeclineReason,
-                DeliveryAddressId = value.DeliveryAddressId,
-                OrderProducts = productServices.Select(ps => new OrderProducts
+                var businessError = await CheckIsBusinessValid(value.EmployeeId, productServices);
+                if (businessError != null)
                 {
-                    ProductServiceId = ps.id,
-                    CostInCents = ps.CostInCents
-                }).ToList()
-            };
+                    return BadRequest(businessError);
+                }
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+            var addressError = await CheckIsAddressValid(value.DeliveryAddressId, value.CustomerId);
+            if (addressError != null)
+            {
+                return BadRequest(addressError);
+            }
+            var orders = value.ToOrders(productServices);
             await _context.Orders.AddAsync(orders);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(Get), new { id = orders.id }, value);
+
+            return CreatedAtAction(nameof(Get), new { id = orders.id }, orders.ToGetOrdersDTO(productServices));
         }
 
         /// <summary>
@@ -248,7 +193,8 @@ namespace PSP_Komanda32_API.Controllers
         /// <param name="value">changed order</param>
         /// <returns>one order by id</returns>
         /// <response code="204">if the change is successful</response>
-        /// <response code="404">If item, customer or employee do not exist</response>
+        /// <response code="400">If the item is incorrect</response>
+        /// <response code="404">If item does not exist</response>
         // PUT api/<OrdersController>/5
         [HttpPut]
         [ProducesResponseType(204)]
@@ -261,62 +207,42 @@ namespace PSP_Komanda32_API.Controllers
             {
                 return NotFound("Item does not exist");
             }
-            if (value.EmployeeId != current.EmployeeId)
+            var productServices = await _context.ProductServices
+                .Where(ps => !ps.isDeleted && value.ProductServiceIds.Contains(ps.id)).ToListAsync();
+            if (productServices.Count != value.ProductServiceIds.Count)
             {
-                var employee = await _context.Employees.FindAsync(value.EmployeeId);
-                if (employee == null)
-                {
-                    return NotFound("Employee does not exist");
-                }
-                var businessAdministrator = await _context.BusinessAdministrators.FindAsync(employee.CreatedBy);
-                if (businessAdministrator == null)
-                {
-                    return StatusCode(500, "Employee has no associated business");
-                }
+                return BadRequest("One or more product or service do not exist");
             }
             if (value.CustomerId != current.CustomerId)
             {
                 return BadRequest("Customer cannot be changed");
             }
+            try
+            {
+                var businessError = await CheckIsBusinessValid(value.EmployeeId, productServices);
+                if (businessError != null)
+                {
+                    return BadRequest(businessError);
+                }
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
             if (value.DeliveryAddressId != current.DeliveryAddressId)
             {
-                var address = await _context.Addresses.FindAsync(value.DeliveryAddressId);
-                if (address == null)
+                var addressError = await CheckIsAddressValid(value.DeliveryAddressId, value.CustomerId);
+                if (addressError != null)
                 {
-                    return NotFound("Address does not exist");
-                }
-                if (address.CustomerId != value.CustomerId)
-                {
-                    return NotFound("Address does not belong to this customer");
+                    return BadRequest(addressError);
                 }
             }
-            var productServices = await _context.ProductServices
-                .Where(ps => !ps.isDeleted && value.ProductServiceIds.Contains(ps.id)).ToListAsync();
-            if (productServices.Count != value.ProductServiceIds.Count)
-            {
-                return NotFound("One or more product or service do not exist");
-            }
-            var orders = new Orders
-            {
-                id = id,
-                EmployeeId = value.EmployeeId,
-                CustomerId = value.CustomerId,
-                Date = value.Date,
-                Payment = value.Payment,
-                IsPaid = value.IsPaid,
-                Comment = value.Comment,
-                IsAccepted = value.IsAccepted,
-                DeclineReason = value.DeclineReason,
-                DeliveryAddressId = value.DeliveryAddressId,
-            };
-            current.OrderProducts = productServices.Select(ps => new OrderProducts
-            {
-                ProductServiceId = ps.id,
-                CostInCents = ps.CostInCents
-            }).ToList();
+            var orders = value.ToOrders();
+            orders.id = id;
+            current.OrderProducts = productServices.Select(ps => ps.ToOrderProducts()).ToList();
 
             _context.Entry(current).CurrentValues.SetValues(orders);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
