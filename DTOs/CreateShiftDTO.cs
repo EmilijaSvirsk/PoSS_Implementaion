@@ -15,6 +15,9 @@ namespace PSP_Komanda32_API.DTOs
 
         [Required]
         public string Location { get; set; }
+
+        [Required]
+        public int CreatedBy { get; set; }
         public string Desription { get; set; }
         public bool CheckedIn { get; set; }
         public bool CheckedOut { get; set; }

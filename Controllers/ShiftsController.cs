@@ -56,7 +56,8 @@ namespace PSP_Komanda32_API.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CreateShiftDTO shift)
         {
-            if (!_context.Employees.Any(employee => employee.id == shift.EmployeeId)) return BadRequest("Shift does not exist.");
+            if (!_context.Employees.Any(employee => employee.id == shift.EmployeeId)) return BadRequest($"Employee {shift.EmployeeId} does not exist.");
+            if (!_context.BusinessManagers.Any(bm => bm.id == shift.CreatedBy)) return BadRequest($"Business manager {shift.CreatedBy} does not exist.");
 
             var newShift = new Shift
             {
@@ -66,7 +67,9 @@ namespace PSP_Komanda32_API.Controllers
                 Location = shift.Location,
                 Desription = shift.Desription,
                 CheckedIn = shift.CheckedIn,
-                CheckedOut = shift.CheckedOut
+                CheckedOut = shift.CheckedOut,
+                CreatedBy = shift.CreatedBy,
+                EmergencyOut = shift.EmergencyOut
             };
 
             _context.Shifts.Add(newShift);
@@ -92,7 +95,7 @@ namespace PSP_Komanda32_API.Controllers
             }
 
             var oldShift = await _context.Shifts.SingleOrDefaultAsync(s => s.id == shift.id);
-            if (oldShift == null) return BadRequest("Shift does not exist.");
+            if (oldShift == null) return BadRequest($"Shift {id} does not exist.");
 
             _context.Entry(oldShift).CurrentValues.SetValues(shift);
             await _context.SaveChangesAsync();
@@ -110,7 +113,7 @@ namespace PSP_Komanda32_API.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var shift = await _context.Shifts.FirstOrDefaultAsync(s => s.id == id);
-            if (shift == null) throw new ArgumentException($"Shift with id:{id} doesn't exist");
+            if (shift == null) throw new ArgumentException($"Shift {id} doesn't exist");
             _context.Shifts.Remove(shift);
             await _context.SaveChangesAsync();
             return Ok();

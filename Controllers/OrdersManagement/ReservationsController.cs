@@ -48,7 +48,7 @@ namespace PSP_Komanda32_API.Controllers
         }
 
         /// <summary>
-        /// Get awailable time slots.
+        /// Get available time slots.
         /// </summary>
         /// <param name="from">Start of time interval</param>
         /// <param name="to">End of time interval</param>
@@ -74,10 +74,13 @@ namespace PSP_Komanda32_API.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CreateReservationDTO reservation)
         {
-            if (!await _timeSlotService.IsTimeSlotAwailable(reservation.Date, reservation.Duration)) return BadRequest("Selected time is not awailable.");
+            if(!await _timeSlotService.IsTimeSlotAwailable(reservation.Date, reservation.Duration)) return BadRequest("Selected time is not available.");
+            if(!await _context.Orders.AnyAsync(o => o.id == reservation.OrderId)) return BadRequest($"Order {reservation.OrderId} does not exists.");
+            if (!await _context.Reservations.AnyAsync(r => r.id == reservation.OrderId)) return BadRequest($"Reservation for order {reservation.OrderId} already exists.");
 
             var newReservation = new Reservation
             {
+                id = reservation.OrderId,
                 Date = reservation.Date,
                 Duration = reservation.Duration,
                 CustomerCount = reservation.CustomerCount,
@@ -107,7 +110,7 @@ namespace PSP_Komanda32_API.Controllers
             if (oldReservation == null) return NotFound();
 
             if (oldReservation.Date != reservation.Date && !await _timeSlotService.IsTimeSlotAwailable(reservation.Date, reservation.Duration))
-                return BadRequest("Selected time is not awailable.");
+                return BadRequest("Selected time is not available.");
 
             _context.Entry(oldReservation).CurrentValues.SetValues(reservation);
             await _context.SaveChangesAsync();
