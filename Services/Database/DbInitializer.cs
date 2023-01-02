@@ -31,6 +31,24 @@ namespace PSP_Komanda32_API.Services.Database
             context.Employees.AddRange(employees);
             context.SaveChanges();
 
+            var shifts = new Shift[]
+            {
+                new Shift{EmployeeId=1, Start=DateTime.Today.AddHours(-4), End=DateTime.Today.AddHours(4), Location="VU"},
+                new Shift{EmployeeId=2, Start=DateTime.Today.AddHours(-4), End=DateTime.Today.AddHours(4), Location="VU"},
+            };
+
+            context.Shifts.AddRange(shifts);
+            context.SaveChanges();
+
+            var reservations = new Reservation[]
+            {
+                new Reservation{Date=DateTime.Today, Duration=30, CustomerCount=1, Status=ReservationStatus.Awaiting},
+                new Reservation{Date=DateTime.Today.AddHours(1), Duration=30, CustomerCount=1, Status=ReservationStatus.Awaiting},
+            };
+
+            context.Reservations.AddRange(reservations);
+            context.SaveChanges();
+            
             var businessManagers = new BusinessManager[]
             {
                 new BusinessManager{id=1, Name="Business", Surname="Manager", Email="businessmanager@gmail.com", Username="businessmanager", Password="businessmanager123", BusinessId=1,CreatedBy=1}

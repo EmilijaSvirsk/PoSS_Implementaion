@@ -41,6 +41,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddDbContext<PoSSContext>(options => options.UseSqlite("Data Source=PoSS.db"));
+builder.Services.AddScoped<ITimeSlotService, TimeSlotService>();
 
 var app = builder.Build();
 
