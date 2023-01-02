@@ -17,6 +17,21 @@ namespace PSP_Komanda32_API.Controllers
         }
 
         /// <summary>
+        /// Gets all product services from ProductService table
+        /// </summary>
+        /// <returns>list of product services</returns>
+        /// <response code="200">Returns found item</response>
+        // GET: api/<ProductServicesController>
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductService>))]
+        public async Task<ActionResult> GetAll()
+        {
+            var productServices = await _context.ProductServices
+                .Where(x => !x.isDeleted).ToListAsync();
+            return Ok(productServices);
+        }
+
+        /// <summary>
         /// Gets all product services of a business from ProductService table
         /// </summary>
         /// <param name="id">id of business</param>
@@ -26,7 +41,7 @@ namespace PSP_Komanda32_API.Controllers
         // GET: api/<ProductServicesController>/5
         [HttpGet("GetAllByBusiness/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductService>))]
-        public async Task<ActionResult> GetAll(int id)
+        public async Task<ActionResult> GetAllByBusinessId(int id)
         {
             var businessPlace = await _context.BusinessPlaces.FindAsync(id);
             if (businessPlace == null)
