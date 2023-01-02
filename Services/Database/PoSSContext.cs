@@ -6,7 +6,6 @@ namespace PSP_Komanda32_API.Services.Database
 {
     public class PoSSContext : DbContext
     {
-
         public DbSet<Address> Addresses { get; set; }
         public DbSet<BannedCustomers> BannedCustomers { get; set; }
         public DbSet<BusinessAdministrator> BusinessAdministrators { get; set; }
@@ -26,8 +25,6 @@ namespace PSP_Komanda32_API.Services.Database
         public DbSet<SystemAdministrator> SystemAdministrators { get; set; }
         public DbSet<Tax> Tax { get; set; }
         public DbSet<Taxes> Taxes { get; set; }
-
-        public string DbPath { get; }
 
         public PoSSContext(DbContextOptions<PoSSContext> options) : base(options)
         {
