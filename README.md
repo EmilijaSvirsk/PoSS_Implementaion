@@ -1,37 +1,17 @@
-# PSP Komanda32 Laboratory work nr.2 - API
+# Smokin Geckos lab 3  
 
+## Description
 
+A backend application developed for Software Engineering Design and Architecture course that implements a REST API endpoints for a point of sale system based on team's Komandux [document](https://github.com/Simutyte/PSP_Komanda32_API), [data model](https://www.figma.com/file/R4yOcQSJ9v7WMlEwD4cyLn/UML-Diagrams-(Community)?node-id=0%3A1&t=kCVw7liNpcpIf8zo-1) and Komanda32 [API documentation](https://github.com/Simutyte/PSP_Komanda32_API).
 
-#### Description
-Our main goal is to create an API that would allow our clients to perform any necessary actions that are needed for managing their day-to-day operations.
-So far we've grouped all requests into 5 groups. All of those groups represent a specific order or type of requests.
+## Running the application
 
-The groups are as follows:
-- Manage Employees
-  - Management of Employees
-  - Management of Couriers
-- Manage Orders
-  - Management of Orders
-  - Management of Order (this is different from the "Orders" table - this holds information about the delivery of orders)
-  - Management of Reservations
-- Manage Prices
-  - Management of Discounts
-  - Management of Taxes
-- Manage Product Services
-- Manage Shifts
+1. Download .NET 6 SDK from [here](https://dotnet.microsoft.com/download/dotnet/6.0)
+2. Clone this repository
+3. Navigate inside the repository folder
+4. Run `dotnet run` command
+5. Open swagger UI at `https://localhost:7210/swagger/index.html`
 
+### Note:
 
-Useful links:
-- [Data Model](https://www.figma.com/file/R4yOcQSJ9v7WMlEwD4cyLn/UML-Diagrams-(Community)?node-id=0%3A1&t=kCVw7liNpcpIf8zo-1)
-- [Original Document](https://docs.google.com/document/d/129SuKjBGZLjADCWx621_v6H1vfarTP8A/edit?usp=sharing&ouid=111720644135424685759&rtpof=true&sd=true)
-
-
-TODO:
-  - [x] Group requests into categories
-  - [x] Write Readme.md
-  - [x] Deployment diagram
-
-
-
-Note:
-This is only in version 1, so there will be a lot of changes in the upcoming weeks. Heads up!
+For Order endpoints field estimatedTime should have format `HH:mm:ss`. More info [here.](https://learn.microsoft.com/en-us/dotnet/core/compatibility/serialization/6.0/timespan-serialization-format)
