@@ -76,7 +76,7 @@ namespace PSP_Komanda32_API.Controllers
         {
             if(!await _timeSlotService.IsTimeSlotAwailable(reservation.Date, reservation.Duration)) return BadRequest("Selected time is not available.");
             if(!await _context.Orders.AnyAsync(o => o.id == reservation.OrderId)) return BadRequest($"Order {reservation.OrderId} does not exists.");
-            if (!await _context.Reservations.AnyAsync(r => r.id == reservation.OrderId)) return BadRequest($"Reservation for order {reservation.OrderId} already exists.");
+            if (await _context.Reservations.AnyAsync(r => r.id == reservation.OrderId)) return BadRequest($"Reservation for order {reservation.OrderId} already exists.");
 
             var newReservation = new Reservation
             {
