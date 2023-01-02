@@ -29,5 +29,11 @@ namespace PSP_Komanda32_API.Services.Database
         public PoSSContext(DbContextOptions<PoSSContext> options) : base(options)
         {
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<OrderProducts>()
+                .HasKey(op => new { op.OrdersId, op.ProductServiceId });
+        }
     }
 }

@@ -1,18 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using PSP_Komanda32_API.Models;
 
-namespace PSP_Komanda32_API.Models
+namespace PSP_Komanda32_API.DTOs
 {
-    public class Orders
+    public class CreateOrdersDTO
     {
-        public int id { get; set; }
         [Required]
         public int EmployeeId { get; set; }
         [Required]
         public int CustomerId { get; set; }
         [Required]
         public DateTime Date { get; set; }
-
         [Required]
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public Payment Payment { get; set; }
@@ -21,8 +20,7 @@ namespace PSP_Komanda32_API.Models
         public bool IsAccepted { get; set; }
         public string DeclineReason { get; set; } = string.Empty;
         [Required]
-        public int DeliveryAddressId { get; set; }       
-
-        public virtual ICollection<OrderProducts> OrderProducts { get; set; } = new List<OrderProducts>();
+        public int DeliveryAddressId { get; set; }
+        public List<int> ProductServiceIds { get; set; } = new List<int>();
     }
 }
